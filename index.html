@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QMDJ Chart · FSAdvisor</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:100vh;padding:12px 8px;overflow-x:hidden}
+.wrap{max-width:640px;margin:0 auto;width:100%}
+
+/* ── TITLE ── */
+.title{text-align:center;margin-bottom:16px}
+.title h2{font-size:17px;font-weight:600;color:#222;letter-spacing:.3px}
+.title p{font-size:12px;color:#666;margin-top:3px}
+.title hr{border:none;border-top:1.5px solid #3a8;width:70%;margin:8px auto 0}
+
+/* ── CONTROLS ── */
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;align-items:center}
+.ctrl label{font-size:11px;font-weight:700;color:#444;letter-spacing:.5px}
+.ctrl select,.ctrl input{padding:5px 9px;font-size:12px;border:1px solid #bbb;
+  border-radius:4px;background:#fff;color:#111;font-family:monospace}
+.btn{padding:6px 16px;font-size:12px;font-weight:700;border:none;border-radius:4px;cursor:pointer;letter-spacing:.5px}
+.btn-ref{background:#1a6030;color:#fff}.btn-ref:hover{background:#218040}
+
+/* ── OUTER CHART FRAME ── */
+.frame{display:inline-flex;flex-direction:column;background:#1d6b38;gap:0;border:0}
+
+/* ── TOP/BOTTOM OUTER ROW ── */
+.outer-row{display:flex;background:#1d6b38}
+.ocorner{width:44px;height:34px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px}
+.otop{flex:1;height:34px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;color:#fff;gap:0}
+.odir{font-size:10px;letter-spacing:1px;opacity:.7;line-height:1}
+.obranch{font-size:17px;font-family:Georgia,serif;line-height:1.1}
+.otri{display:flex;flex-direction:column-reverse;gap:2px;margin-top:2px}
+
+/* ── MIDDLE ROW ── */
+.mid-row{display:flex;background:#1d6b38;gap:0}
+
+/* ── SIDE COLUMNS ── */
+.side{width:44px;display:flex;flex-direction:column;gap:2px;padding:2px 0}
+.scell{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;gap:2px}
+.sbranch{font-size:15px;font-family:Georgia,serif;line-height:1}
+.sdir{font-size:9px;letter-spacing:1px;opacity:.65}
+.stri{display:flex;flex-direction:column-reverse;gap:2px;margin-top:1px}
+
+/* ── INNER 3×3 GRID ── */
+.grid{display:grid;grid-template-columns:repeat(3,160px);grid-template-rows:repeat(3,158px);
+  gap:2px;background:#000;margin:2px}
+
+/* ── TRIGRAM BARS ── */
+.tri{display:flex;flex-direction:column-reverse;gap:3px}
+.ts{height:3px;background:rgba(0,0,0,.55);border-radius:1px}
+.tb{height:3px;display:flex;gap:4px}
+.tb span{flex:1;height:100%;background:rgba(0,0,0,.55);border-radius:1px}
+
+/* ── PALACE CELL ── */
+.cell{background:#fff;display:flex;flex-direction:column;padding:5px 7px 5px;
+  position:relative;overflow:hidden;cursor:default}
+.cell.act{background:#f0f8ec;outline:3px solid #e8a000;outline-offset:-3px;z-index:1}
+.cell.ctr{background:#f5f5f5;align-items:center;justify-content:space-between}
+
+/* ── CELL ROWS ── */
+
+/* Row 1: Deity */
+.r1{font-size:11.5px;color:#333;text-align:center;
+  border-bottom:1px solid rgba(0,0,0,.15);padding-bottom:4px;margin-bottom:4px;
+  white-space:nowrap;letter-spacing:.2px;flex-shrink:0}
+.r1 .dch{font-family:Georgia,serif;font-size:9.5px;color:#777;margin-left:3px}
+
+/* Row 2: Heaven Stem + Star */
+.r2{display:flex;align-items:center;gap:6px;flex-shrink:0;min-height:32px}
+.hs{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;flex-shrink:0}
+.hs2{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;
+  flex-shrink:0;align-self:flex-end}
+.sn{font-size:11.5px;color:#555;margin-left:auto;text-align:right;
+  font-style:italic;line-height:1.25;align-self:flex-end;padding-bottom:2px}
+
+/* Row 3: Gate */
+.r3{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2px 0}
+.gname{font-size:21px;font-weight:800;color:#111;letter-spacing:.4px;text-transform:uppercase}
+.gch{font-size:9.5px;color:#888;font-family:Georgia,serif;
+  letter-spacing:2px;margin-top:2px}
+
+/* Row 4: Earth stem + palace# + trigram */
+.r4{display:flex;align-items:center;gap:4px;border-top:1px solid rgba(0,0,0,.15);
+  padding-top:4px;flex-shrink:0}
+.es{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;flex-shrink:0}
+.es2{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;flex-shrink:0}
+.pn{font-size:12px;color:#aaa;font-family:monospace;margin-left:2px}
+.ptri{margin-left:auto;display:flex;flex-direction:column-reverse;gap:3px}
+.fstar{font-size:14px;font-weight:800;font-family:Georgia,serif;line-height:1;flex-shrink:0;
+  width:21px;height:21px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:1.6px solid currentColor;margin-left:5px}
+
+/* Center cell */
+.ctr-top{flex:1;display:flex;align-items:center;justify-content:center}
+.ctr-hs{font-size:28px;font-family:Georgia,serif;font-weight:700;line-height:1;text-align:center}
+.ctr-r4{display:flex;align-items:center;gap:4px;border-top:1px solid rgba(0,0,0,.15);
+  padding-top:4px;width:100%;flex-shrink:0}
+
+/* Stem colors — matching reference image */
+.fw{color:#4fc34f}  /* 甲乙 Wood: green */
+.ff{color:#f05050}  /* 丙丁 Fire: red */
+.fe{color:#f5a623}  /* 戊己 Earth: amber/gold */
+.fmy{color:#e06040} /* 庚 Metal Yang: dark orange-red */
+.fmn{color:#aaaaaa} /* 辛 Metal Yin: silver-gray */
+.fwt{color:#5c99f0} /* 壬癸 Water: blue */
+
+/* Annual mode: star number colors */
+.fyang{color:#f5a623} /* Yang star: amber */
+.fyin{color:#5c99f0}  /* Yin star: blue */
+
+/* Info bar */
+.info{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+#infoTop{margin-top:2px;margin-bottom:14px}
+.ic-hl{border:1.5px solid #e8a000;background:#fffdf3;box-shadow:0 1px 6px rgba(232,160,0,.3)}
+.ic-hl::after{color:#e8a000}
+.ic{background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 13px;text-align:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.07);min-width:90px}
+.ic .lb{font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
+.ic .vl{font-size:14px;font-weight:700;color:#1a1a2e}
+.ic .sb{font-size:9px;color:#aaa;font-family:monospace;margin-top:2px}
+.yg{color:#b85000!important}.yn{color:#1a4a8a!important}
+
+.chart-wrap{display:flex;justify-content:center;overflow:hidden;margin:4px 0;width:100%}
+.chart-scaler{overflow:hidden}
+#chart{transform-origin:top left}
+
+/* Info modal */
+.ic{position:relative}
+.ic::after{content:"\24D8";position:absolute;top:3px;right:6px;font-size:10px;color:#bbb}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:18px}
+.modal-box{background:#fff;border-radius:12px;max-width:430px;width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 10px 50px rgba(0,0,0,.35)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 11px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff}
+.modal-head h3{font-size:16px;color:#1a6030;font-weight:700}
+.modal-x{background:none;border:none;font-size:27px;color:#999;cursor:pointer;line-height:1;padding:0 2px}
+.modal-body{padding:14px 18px 22px;font-size:13.5px;line-height:1.62;color:#333}
+.modal-body b{color:#1a6030}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="title">
+  <h2>QMDJ 1080 Jú · Hour Rotating Pan</h2>
+  <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
+  <hr>
+</div>
+
+<div class="ctrl">
+  <label>YEAR</label>
+  <input type="number" id="yr" value="2026" style="width:86px">
+  <button class="btn btn-ref" onclick="loadRef()">Draw Chart</button>
+</div>
+
+<div class="info" id="infoTop"></div>
+<div class="chart-wrap"><div class="chart-scaler" id="scaler"><div id="chart"></div></div></div>
+<div class="info" id="infoBottom"></div>
+
+<div id="modal" class="modal" onclick="if(event.target===this)closeInfo()">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-x" onclick="closeInfo()">&times;</button></div>
+    <div id="modalBody" class="modal-body"></div>
+  </div>
+</div>
+
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+
+// Reference: Yang Jú 7 · Lower Cycle · Day Ding-Ren · Hour Bing-Wu
+// Exactly as shown in the reference image
+const REF = {
+  1:{ dy:'Harmonies', dc:'六合', h:'辛', hc:'fmn', h2:'',   h2c:'',   st:'Grass',     sc:'天蓬', gt:'Injury',   gc:'傷門' },
+  2:{ dy:'Commander', dc:'值符', h:'壬', hc:'fwt', h2:'丙', h2c:'ff', st:'Rice',      sc:'天芮', gt:'Open',     gc:'開門' },
+  3:{ dy:'Warrior',   dc:'玄武', h:'癸', hc:'fwt', h2:'',   h2c:'',   st:'Aggressor', sc:'天沖', gt:'View',     gc:'杜門' },
+  4:{ dy:'Earth',     dc:'九地', h:'丁', hc:'ff',  h2:'',   h2c:'',   st:'Assistant', sc:'天輔', gt:'Death',    gc:'死門' },
+  5:{ dy:'',          dc:'',    h:'丙', hc:'ff',  h2:'',   h2c:'',   st:'',          sc:'',     gt:'',         gc:''     },
+  6:{ dy:'Yin',       dc:'太陰', h:'乙', hc:'fw',  h2:'',   h2c:'',   st:'Heart',     sc:'天心', gt:'Birth',    gc:'生門' },
+  7:{ dy:'Snake',     dc:'螣蛇', h:'戊', hc:'fe',  h2:'',   h2c:'',   st:'Pillar',    sc:'天柱', gt:'Rest',     gc:'休門' },
+  8:{ dy:'Tiger',     dc:'白虎', h:'己', hc:'fe',  h2:'',   h2c:'',   st:'Official',  sc:'天任', gt:'Delusion', gc:'景門' },
+  9:{ dy:'Heaven',    dc:'九天', h:'庚', hc:'fmy', h2:'',   h2c:'',   st:'Hero',      sc:'天英', gt:'Shocking', gc:'驚門' },
+};
+
+// Trigrams [bottom, mid, top] 1=solid 0=broken
+const TRIGS = {
+  1:[1,0,1], 2:[0,0,0], 3:[1,0,0], 4:[0,0,1],
+  6:[1,1,1], 7:[0,1,1], 8:[1,1,0], 9:[1,0,1]
+};
+function triH(pn){
+  const t=TRIGS[pn];if(!t)return'';
+  return t.map(s=>s?'<div class="ts"></div>':'<div class="tb"><span></span><span></span></div>').join('');
+}
+
+// Palace info
+const PI={
+  1:{n:'Kǎn',d:'N',b:'子'},2:{n:'Kūn',d:'SW',b:'申'},3:{n:'Zhèn',d:'E',b:'卯'},
+  4:{n:'Xùn',d:'SE',b:'巳'},5:{n:'Ctr',d:'C',b:''},6:{n:'Qián',d:'NW',b:'亥'},
+  7:{n:'Duì',d:'W',b:'酉'},8:{n:'Gèn',d:'NE',b:'寅'},9:{n:'Lí',d:'S',b:'午'}
+};
+
+// Annual system
+const GO=10155356,PSEQ=[1,9,8,7,6,5,4,3,2];
+const TERNE={
+  1:[[1,7,4],[2,8,5],[3,9,6]],9:[[9,6,3],[1,7,4],[2,8,5]],
+  8:[[8,5,2],[9,6,3],[1,7,4]],7:[[7,4,1],[8,5,2],[9,6,3]],
+  6:[[6,3,9],[7,4,1],[8,5,2]],5:[[5,2,8],[6,3,9],[7,4,1]],
+  4:[[4,1,7],[5,2,8],[6,3,9]],3:[[3,9,6],[4,1,7],[5,2,8]],
+  2:[[2,8,5],[3,9,6],[4,1,7]]
+};
+const SCH=['天蓬','天芮','天沖','天輔','天禽','天心','天柱','天任','天英'];
+const SEN=['Porch','Rice','Rush','Assist','Fowl','Heart','Pillar','Duty','Hero'];
+const GCH={1:'休門',2:'死門',3:'傷門',4:'杜門',6:'開門',7:'驚門',8:'生門',9:'景門'};
+const GEN={1:'Rest',2:'Death',3:'Injury',4:'View',6:'Open',7:'Shock',8:'Birth',9:'Scenery'};
+const YNAME=['Upper','Middle','Lower'];
+const GRID=[4,9,2,3,5,7,8,1,6];
+
+function y2a(y){return(y>0?y:y+1)+GO;}
+function a2y(a){const ast=a-GO;return ast>0?ast:ast-1;}
+function fmtY(y){var n=Math.abs(y),x=n>9999?n.toLocaleString('en-US'):String(n);return y>0?x+' AD':x+' BC';}
+function starY(P,j,yu){return((P-j+[0,3,6][yu]+90)%9)+1;}
+// Annual flying star (流年飛星): center star decreases 1/yr (2026=1), others fly FORWARD
+function centerStar(year){return ((2044-year)%9+9)%9+1;}
+function flyStar(P,C){return ((P+C-6)%9+9)%9+1;}
+// Sexagenary year pillar & decade (旬). Anchor: 1984 = Jia-Zi 甲子.
+const STEMS_EN=['Jia','Yi','Bing','Ding','Wu','Ji','Geng','Xin','Ren','Gui'];
+const STEMS_CH=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const BR_EN=['Zi','Chou','Yin','Mao','Chen','Si','Wu','Wei','Shen','You','Xu','Hai'];
+const BR_CH=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const ZIBAI=['一白','二黑','三碧','四綠','五黃','六白','七赤','八白','九紫']; // 紫白九星
+function yearPillar(y){const o=(((y-1984)%60)+60)%60;return{s:o%10,b:o%12};}
+function yearDecade(y){const o=(((y-1984)%60)+60)%60,h=o-(o%10);
+  return{hs:0,hb:h%12,conceal:4+h/10};} // head always Jia; 六儀 concealment = 戊己庚辛壬癸
+
+function calcAnn(year){
+  const anni=y2a(year);if(anni<0)return null;
+  const gcN=Math.floor(anni/4860)+1,aGC=anni%4860;
+  const pi=Math.min(Math.floor(aGC/540),8),aPal=aGC-pi*540;
+  const pN=PSEQ[pi];
+  const ti=Math.min(Math.floor(aPal/180),2),aTer=aPal-ti*180;
+  const ji=Math.min(Math.floor(aTer/60),2);
+  const juN=TERNE[pN][ti][ji];
+  const dun=pN===5?(juN%2?'Yang':'Yin'):((pN+juN)%2?'Yang':'Yin');
+  const base=(gcN-1)*4860, p=base+pi*540, t=p+ti*180, j=t+ji*60;
+  const scN=Math.floor(anni/92340)+1;
+  return{year,gcN,pN,pi,ti,ji,juN,dun,
+    scN, scS:a2y((scN-1)*92340), scE:a2y(scN*92340),
+    gcS:a2y(base), gcE:a2y(base+4860),
+    palS:a2y(p),  palE:a2y(p+540),
+    terS:a2y(t),  terE:a2y(t+180),
+    juS:a2y(j),   juE:a2y(j+60)};
+}
+
+// ── QMDJ TRANSPAN GENERATOR (轉盤) — verified vs 2025/2026/2027 reference charts ──
+// Stem → colour class
+const SCLS={'甲':'fw','乙':'fw','丙':'ff','丁':'ff','戊':'fe','己':'fe','庚':'fmy','辛':'fmn','壬':'fwt','癸':'fwt'};
+const GCOMP=[1,8,3,4,9,2,7,6];                 // stars & deities wheel (compass clockwise)
+const GSTEM_ORDER=['戊','己','庚','辛','壬','癸','丁','丙','乙']; // di-pan placement order
+const GSTAR_EN={1:'Grass',2:'Rice',3:'Aggressor',4:'Assistant',5:'',6:'Heart',7:'Pillar',8:'Official',9:'Hero'};
+const GSTAR_CH={1:'天蓬',2:'天芮',3:'天沖',4:'天輔',5:'天禽',6:'天心',7:'天柱',8:'天任',9:'天英'};
+const GGATE_EN={1:'Rest',2:'Death',3:'Injury',4:'View',6:'Open',7:'Shocking',8:'Birth',9:'Delusion'};
+const GGATE_CH={1:'休門',2:'死門',3:'傷門',4:'杜門',6:'開門',7:'驚門',8:'生門',9:'景門'};
+const GDEITY_EN=['Commander','Snake','Yin','Harmonies','Tiger','Warrior','Earth','Heaven'];
+const GDEITY_CH=['值符','螣蛇','太陰','六合','白虎','玄武','九地','九天'];
+
+function genDipan(ju,dun){               // earth plate: 戊己庚辛壬癸丁丙乙 from jú palace
+  const d={}; let p=ju;
+  for(const s of GSTEM_ORDER){ d[p]=s; p = dun==='Yang' ? (p%9+1) : ((p-2+9)%9+1); }
+  return d;
+}
+function genYearChart(year){
+  const a=calcAnn(year); if(!a) return null;
+  const ju=a.juN, dun=a.dun, dp=genDipan(ju,dun);
+  const o=(((year-1984)%60)+60)%60, hd=o-(o%10);
+  const xstem=['戊','己','庚','辛','壬','癸'][hd/10], k=o%10;          // 旬首 conceal stem + position
+  let xpal; for(const p in dp) if(dp[p]===xstem) xpal=+p;             // 旬首 palace
+  const ystem=STEMS_CH[yearPillar(year).s];
+  const eff=(ystem==='甲')?xstem:ystem;
+  let tgt; for(const p in dp) if(dp[p]===eff) tgt=+p;                 // 值符 target = year-stem on di-pan
+  if(tgt===5) tgt=2;                                                 // center lodges to Kun (中宫寄坤)
+  // heaven plate — rigid compass rotation of stars (each carries its di-pan stem)
+  const sS=GCOMP.indexOf(tgt)-GCOMP.indexOf(xpal), starAt={};
+  for(let i=0;i<8;i++) starAt[GCOMP[((i+sS)%8+8)%8]]=GCOMP[i];
+  starAt[5]=5;
+  // deities — from 值符 (at tgt), clockwise (Yang) / counter-clockwise (Yin)
+  const deity={}, iF=GCOMP.indexOf(tgt);
+  for(let dd=0;dd<8;dd++){ deity[ dun==='Yang'?GCOMP[(iF+dd)%8]:GCOMP[((iF-dd)%8+8)%8] ]=dd; }
+  // gates — 值使 advances numerically from 旬首 by k; rigid rotation; 杜↔景 swap
+  let g=xpal;
+  for(let s=0;s<k;s++) g = dun==='Yang' ? (g%9+1) : ((g-2+9)%9+1);
+  if(g===5) g=2;
+  const sG=GCOMP.indexOf(g)-GCOMP.indexOf(xpal), gate={};
+  for(let i=0;i<8;i++) gate[GCOMP[((i+sG)%8+8)%8]]=GCOMP[i];
+  for(const q in gate){ if(gate[q]===4) gate[q]=9; else if(gate[q]===9) gate[q]=4; }
+  // 丙-rider: center star (天禽) rides with 天芮 on heaven; sits at the lodge palace on earth
+  let star2pal; for(const q in starAt) if(starAt[q]===2) star2pal=+q;
+  const lodge=2, ctrStem=dp[5];   // 天禽 earth stem always displays at Kun (中宫寄坤)
+  const cells={};
+  for(let pn=1;pn<=9;pn++){
+    if(pn===5){ cells[5]={hh:dp[5],hhc:SCLS[dp[5]]||'',ee:dp[5],eec:SCLS[dp[5]]||'',
+      hh2:'',hh2c:'',ee2:'',ee2c:'',dy:'',dc:'',st:'',sc:'',gt:'',gc:''}; continue; }
+    const star=starAt[pn], hstem=dp[star], estem=dp[pn];
+    cells[pn]={
+      dy:GDEITY_EN[deity[pn]], dc:GDEITY_CH[deity[pn]],
+      hh:hstem, hhc:SCLS[hstem]||'',
+      hh2:(pn===star2pal?ctrStem:''), hh2c:(pn===star2pal?(SCLS[ctrStem]||''):''),
+      ee:estem, eec:SCLS[estem]||'',
+      ee2:(pn===lodge?ctrStem:''), ee2c:(pn===lodge?(SCLS[ctrStem]||''):''),
+      st:GSTAR_EN[star], sc:GSTAR_CH[star],
+      gt:GGATE_EN[gate[pn]], gc:GGATE_CH[gate[pn]]
+    };
+  }
+  cells._fu={pal:tgt, gate:g, ju, dun, xpal};   // metadata for pan-info boxes
+  return cells;
+}
+
+// ── CELL BUILDER ────────────────────────────────────────────────────────
+function cell(pn, d, isAct, fStar){
+  const isCtr=pn===5;
+  const cls='cell'+(isAct?' act':'')+(isCtr?' ctr':'');
+  const fsCls = fStar%2 ? 'fyang' : 'fyin';
+  const fsTag = `<span class="fstar ${fsCls}" title="Annual flying star ${fStar}">${fStar}</span>`;
+
+  if(isCtr){
+    return `<div class="${cls}" title="Center Palace 5 · Annual star ${fStar}">
+      <div class="ctr-top"><div class="ctr-hs"><span class="${d.hhc}">${d.hh}</span></div></div>
+      <div class="ctr-r4">
+        <span class="es ${d.eec}">${d.ee}</span>
+        <span class="pn">5</span>
+        <div class="ptri">${triH(5)}</div>
+        ${fsTag}
+      </div>
+    </div>`;
+  }
+
+  return `<div class="${cls}" title="${PI[pn].d} · ${PI[pn].n} · Annual star ${fStar}">
+    <div class="r1">${d.dy}<span class="dch">${d.dc}</span></div>
+    <div class="r2">
+      <span class="hs ${d.hhc}">${d.hh}</span>
+      ${d.hh2?`<span class="hs2 ${d.hh2c}">${d.hh2}</span>`:''}
+      ${d.st?`<span class="sn">${d.st}</span>`:''}
+    </div>
+    <div class="r3">
+      ${d.gt?`<div class="gname">${d.gt}</div><div class="gch">${d.gc}</div>`
+            :`<div style="opacity:.15;font-size:20px">—</div>`}
+    </div>
+    <div class="r4">
+      <span class="es ${d.eec}">${d.ee}</span>
+      ${d.ee2?`<span class="es2 ${d.ee2c}">${d.ee2}</span>`:''}
+      <span class="pn">${pn}</span>
+      <div class="ptri">${triH(pn)}</div>
+      ${fsTag}
+    </div>
+  </div>`;
+}
+
+// ── CHART BUILDER ────────────────────────────────────────────────────────
+function buildChart(cells, actP, sub){
+  document.getElementById('subtitle').textContent=sub;
+  const yr = parseInt(document.getElementById('yr').value) || 2026;
+  const C = centerStar(yr);
+
+  const ot=(br,dir)=>`<div class="otop">
+    ${dir?`<div class="odir">${dir}</div>`:''}
+    <div class="obranch">${br}</div>
+  </div>`;
+  const sc=(br,dir,pn)=>`<div class="scell">
+    ${dir?`<div class="sdir">${dir}</div>`:''}
+    <div class="sbranch">${br}</div>
+    <div class="stri">${triH(pn)}</div>
+  </div>`;
+
+  let h=`<div class="frame">`;
+
+  // TOP ROW
+  h+=`<div class="outer-row">
+    <div class="ocorner">SE</div>
+    ${ot('巳','')}${ot('午','S')}${ot('未','')}
+    <div class="ocorner">SW</div>
+  </div>`;
+
+  // MID ROW
+  h+=`<div class="mid-row">
+    <div class="side">${sc('辰','',4)}${sc('卯','E',3)}${sc('寅','',8)}</div>
+    <div class="grid">`;
+  GRID.forEach(pn=>{ h+=cell(pn, cells[pn], pn===actP, flyStar(pn, C)); });
+  h+=`</div>
+    <div class="side">${sc('申','',2)}${sc('酉','W',7)}${sc('戌','',6)}</div>
+  </div>`;
+
+  // BOTTOM ROW
+  h+=`<div class="outer-row">
+    <div class="ocorner">NE</div>
+    ${ot('丑','')}${ot('子','N')}${ot('亥','')}
+    <div class="ocorner">NW</div>
+  </div>`;
+
+  h+=`</div>`;
+  document.getElementById('chart').innerHTML=h;
+  scaleChartSoon();
+}
+
+// ── ANNUAL CHART ─────────────────────────────────────────────────────────
+function annCells(juN, yu, dun, actP){
+  const c={};
+  [1,2,3,4,5,6,7,8,9].forEach(pn=>{
+    const sN=starY(pn,juN,yu);
+    const isYang=sN%2===1;
+    if(pn===5){
+      c[5]={h:String(sN),hc:isYang?'fyang':'fyin',h2:'',h2c:'',st:'',sc:'',gt:'',gc:''};
+      return;
+    }
+    const gN=sN; // gate tied to star (annual system)
+    c[pn]={
+      dy:PI[pn].d+' · '+PI[pn].b, dc:'',
+      h:String(sN), hc:isYang?'fyang':'fyin',
+      h2:'', h2c:'',
+      st:SEN[sN-1], sc:SCH[sN-1],
+      gt:GEN[gN]||'', gc:GCH[gN]||''
+    };
+  });
+  return c;
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────────────
+function loadRef(){
+  const yr = parseInt(document.getElementById('yr').value) || 2026;
+  const C = centerStar(yr);
+  const a = calcAnn(yr);
+  if(!a){
+    buildChart(genYearChart(2026), 0, '—');
+    document.getElementById('infoTop').innerHTML='';
+    document.getElementById('infoBottom').innerHTML =
+      `<div class="ic" onclick="showInfo('year')"><div class="lb">Year</div><div class="vl">${fmtY(yr)}</div><div class="sb">before Great Origin</div></div>`;
+    return;
+  }
+  const pil = yearPillar(yr), dec = yearDecade(yr);
+  const pilStr = STEMS_EN[pil.s]+'-'+BR_EN[pil.b], pilCh = STEMS_CH[pil.s]+BR_CH[pil.b];
+  const decStr = 'Jia-'+BR_EN[dec.hb]+' '+STEMS_EN[dec.conceal];
+  const decCh  = '甲'+BR_CH[dec.hb]+' · '+STEMS_CH[dec.conceal];
+  const yuanCh = ['上元','中元','下元'][a.ti];
+  // dynamic QMDJ grid for this year
+  const cells = genYearChart(yr);
+  buildChart(cells, 0, `${a.dun} Jú ${a.juN} · ${YNAME[a.ti]} Cycle · Year: ${pilStr} ${pilCh}`);
+  // ABOVE chart: the three annual-reading boxes
+  document.getElementById('infoTop').innerHTML=`
+    <div class="ic" onclick="showInfo('year')"><div class="lb">Year</div><div class="vl">${fmtY(yr)}</div><div class="sb">${pilStr} ${pilCh}</div></div>
+    <div class="ic" onclick="showInfo('decade')"><div class="lb">Year Decade · 旬</div><div class="vl">${decStr}</div><div class="sb">${decCh}</div></div>
+    <div class="ic" onclick="showInfo('star')"><div class="lb">Annual Star</div><div class="vl ${C%2?'yg':'yn'}">${C} · center</div><div class="sb">${ZIBAI[C-1]}</div></div>`;
+  // BELOW chart: the nested cycles, largest → smallest in time
+  document.getElementById('infoBottom').innerHTML=`
+    <div class="ic" onclick="showInfo('origin')"><div class="lb">Great Origin</div><div class="vl">${fmtY(a2y(0))}</div><div class="sb">year 1 of all cycles</div></div>
+    <div class="ic" onclick="showInfo('metonic')"><div class="lb">Metonic · 92,340y</div><div class="vl">#${a.scN}</div><div class="sb">${fmtY(a.scS)} → ${fmtY(a.scE)}</div></div>
+    <div class="ic" onclick="showInfo('grand')"><div class="lb">Grand Cycle · 4860y</div><div class="vl">#${a.gcN}</div><div class="sb">${fmtY(a.gcS)} → ${fmtY(a.gcE)}</div></div>
+    <div class="ic" onclick="showInfo('palace')"><div class="lb">Palace · 540y</div><div class="vl">${PI[a.pN].n}</div><div class="sb">${fmtY(a.palS)} → ${fmtY(a.palE)}</div></div>
+    <div class="ic" onclick="showInfo('yuan')"><div class="lb">Yuan · 180y</div><div class="vl">${YNAME[a.ti]} ${yuanCh}</div><div class="sb">${fmtY(a.terS)} → ${fmtY(a.terE)}</div></div>
+    <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>
+    <div class="ic" onclick="showInfo('year')"><div class="lb">Year · 1y</div><div class="vl">${fmtY(yr)}</div><div class="sb">the present year</div></div>
+    <div class="ic ic-hl" onclick="showInfo('reset')"><div class="lb">Convergence ★</div><div class="vl yg">2044 AD</div><div class="sb">all cycles restart</div></div>`;
+}
+
+
+// ── INFO MODAL CONTENT ─────────────────────────────────────────────────────
+const EXPLAIN = {
+  year: { t:'Year', b:`The current year shown with its <b>sexagenary pillar</b> (Heavenly Stem + Earthly Branch). The 60-year cycle (六十甲子) pairs 10 stems with 12 branches and is anchored on <b>1984 = Jia-Zi (甲子)</b>. This 60-year span is the base unit from which every larger cycle in the system is built.` },
+
+  decade: { t:'Year Decade · 旬', b:`A decade (旬, xún) is a run of <b>10 consecutive years led by a Jia (甲)</b> stem. There are six: 甲子, 甲戌, 甲申, 甲午, 甲辰, 甲寅. In Qi Men each Jia is "hidden" under one of the six 儀 stems — 甲子→戊, 甲戌→己, 甲申→庚, 甲午→辛, <b>甲辰→壬</b>, 甲寅→癸. Only a Jia can head a decade, so a non-Jia stem (e.g. Ding 丁) is never the head: the box shows the decade leader and its concealment stem. 2026 (丙午) sits in the <b>甲辰</b> decade, concealed under <b>壬 (Ren)</b>.` },
+
+  star: { t:'Annual Star', b:`The annual flying star began as <b>1 at the Great Origin</b> and counts <b>backward</b> by one each year (… 3, 2, 1, 9, 8 …). The year's star sits in the centre; the other eight fly forward along the Luoshu path. Because 9 stars run against the 60-year sexagenary cycle, the same star meets the same pillar again only every <b>180 years</b> (the lowest common multiple of 9 and 60) — it comes back to meet the Jia-Zi year once per 180 years, which is exactly why the 三元 180-year cycle exists. For 2026 the centre star is <b>1</b>.` },
+
+  origin: { t:'Great Origin · 大元', b:`The <b>Great Origin = 10,155,357 BC</b> is defined as <b>year 1 of every cycle</b> — jú, yuan, palace, grand cycle and annual star all begin counting here. The <b>19-year Metonic cycle</b> also starts at this point; combined with the 4860-year grand cycle it forms a <b>super-cycle of 92,340 years</b> (4860 × 19) that re-synchronises every level at once, and which likewise begins at the Great Origin. Every other figure in this panel is measured as years elapsed from this point.` },
+
+  metonic: { t:'Metonic Super-cycle · 92,340 years', b:`The <b>19-year Metonic cycle</b> reconciles the lunar months with the solar year (235 lunations ≈ 19 years). Because 19 is prime to the 4860-year grand cycle, the two realign only after <b>19 × 4860 = 92,340 years</b> — the largest cycle in the system. We are in super-cycle <b>#110</b> (90,297 BC → 2044 AD); like every level it closes on <b>2044</b>, when the 19-year Metonic count also resets. It begins, with all other cycles, at the Great Origin.` },
+
+  grand: { t:'Grand QMDJ Cycle of 4860 years', b:`60 years × 9 jú's = 540 years<br>540 years × 9 palaces = 4860 years<br><br>We are now in grand cycle <b>#2090</b>.` },
+
+  palace: { t:'Palace · 540 years', b:`Each grand cycle is divided into <b>9 palaces of 540 years</b> (540 = 9 jú = 3 yuan). The palaces are walked <b>retrograde, always starting from Kǎn (1)</b>: 1 → 9 → 8 → 7 → 6 → 5 → 4 → 3 → 2; then the next grand cycle restarts again from Kǎn. We are currently in palace <b>Kūn (2)</b>, running to 2044.` },
+
+  yuan: { t:'Yuan · 180 years · 三元', b:`Each palace holds three <b>180-year periods</b> — Upper (上元), Middle (中元), Lower (下元) — the classic <b>三元</b> of 三元九運. This is the same cycle used in <b>Xuan Kong Fei Xing</b> (Flying Stars) method. Starting year … 1684, 1864, <b>2044</b>, 2224 … We are in the <b>Lower yuan (下元)</b>, 1864 → 2044. It is also the span over which the annual star realigns with the Jia-Zi year.` },
+
+  reset: { t:'2044 AD · The Great Convergence', b:`<b>2044 AD</b> is the single moment when <b>every cycle closes and restarts together</b> — the 60-year jú, the 180-year yuan, the 540-year palace, the 4860-year grand cycle and the 92,340-year Metonic super-cycle all reach their boundary at the very same year. The palace sequence returns to <b>Kǎn (1)</b>, the annual star returns to <b>1 (一白)</b>, and the whole count begins afresh. This simultaneous reset is the empirical anchor of the entire system. The next time all levels align again is <b>94,384 AD</b> (2044 + 92,340).` },
+
+  ju: { t:'Jú · 60 years', b:`The smallest cycle = one <b>60-year jú</b> (a full sexagenary round). Within a palace the jú number <b>advances</b>: +6 inside a yuan, +1 between yuan. Each jú's polarity — <b>Yang (陽遁)</b> or <b>Yin (陰遁)</b> — follows (palace# + jú#): odd = Yang, even = Yin; the centre palace (5) uses the jú number's parity alone. We are in jú <b>#7, Yang</b>, 1984 → 2044.` },
+};
+
+function showInfo(key){
+  const e = EXPLAIN[key];
+  if(!e) return;
+  document.getElementById('modalTitle').textContent = e.t;
+  document.getElementById('modalBody').innerHTML = e.b;
+  document.getElementById('modal').style.display = 'flex';
+}
+function closeInfo(){ document.getElementById('modal').style.display = 'none'; }
+
+document.getElementById('yr').addEventListener('keydown',e=>{if(e.key==='Enter')loadRef();});
+document.getElementById('yr').addEventListener('change',loadRef);
+window.addEventListener('load',()=>{loadRef();});
+
+// ── RESPONSIVE SCALING ────────────────────────────────────────────────────
+// The chart's natural size is FIXED by design (no need to measure — avoids timing bugs):
+//   width  = 2 side cols (44) + grid (3*160 + gaps/margins) = 576px
+//   height = top row (34) + grid (3*158 + gaps/margins) + bottom row (34) = 550px
+const DESIGN_W = 576, DESIGN_H = 550;
+function scaleChart(){
+  const scaler = document.getElementById('scaler');
+  const frame = document.getElementById('chart');
+  if(!frame || !frame.firstChild) return;
+  const vw = window.innerWidth || document.documentElement.clientWidth || 400;
+  const sc = Math.min(1, (vw - 10) / DESIGN_W);
+  frame.style.transformOrigin = 'top left';
+  frame.style.transform = 'scale(' + sc + ')';
+  scaler.style.width  = Math.round(DESIGN_W * sc) + 'px';
+  scaler.style.height = Math.round(DESIGN_H * sc) + 'px';
+}
+function scaleChartSoon(){
+  scaleChart();
+  requestAnimationFrame(scaleChart);
+  setTimeout(scaleChart, 80);
+  setTimeout(scaleChart, 300);
+}
+window.addEventListener('resize', scaleChart);
+window.addEventListener('orientationchange', function(){setTimeout(scaleChart,200);});
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(scaleChart);}
+
+</script>
+</body>
+</html>
