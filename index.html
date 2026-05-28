@@ -447,11 +447,10 @@ function loadRef(){
   // dynamic QMDJ grid for this year
   const cells = genYearChart(yr);
   buildChart(cells, 0, `${a.dun} Jú ${a.juN} · ${YNAME[a.ti]} Cycle · Year: ${pilStr} ${pilCh}`);
-  // ABOVE chart: the three annual-reading boxes
+  // ABOVE chart: the Jú and Year tabs (copied from below; Year shows the Dun in English)
   document.getElementById('infoTop').innerHTML=`
-    <div class="ic" onclick="showInfo('year')"><div class="lb">Year</div><div class="vl">${fmtY(yr)}</div><div class="sb">${pilStr} ${pilCh}</div></div>
-    <div class="ic" onclick="showInfo('decade')"><div class="lb">Year Decade · 旬</div><div class="vl">${decStr}</div><div class="sb">${decCh}</div></div>
-    <div class="ic" onclick="showInfo('star')"><div class="lb">Annual Star</div><div class="vl ${C%2?'yg':'yn'}">${C} · center</div><div class="sb">${ZIBAI[C-1]}</div></div>`;
+    <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>
+    <div class="ic" onclick="showInfo('year')"><div class="lb">Year · 1y</div><div class="vl">${fmtY(yr)}</div><div class="sb">${a.dun} Dun</div></div>`;
   // BELOW chart: the nested cycles, largest → smallest in time
   document.getElementById('infoBottom').innerHTML=`
     <div class="ic" onclick="showInfo('origin')"><div class="lb">Great Origin</div><div class="vl">${fmtY(a2y(0))}</div><div class="sb">year 1 of all cycles</div></div>
