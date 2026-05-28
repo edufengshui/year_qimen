@@ -147,7 +147,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div class="wrap">
 
 <div class="title">
-  <h2>QMDJ Yearly chart</h2>
+  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v3</span></h2>
   <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
   <hr>
 </div>
@@ -492,14 +492,18 @@ const EXPLAIN = {
 
   reset: { t:'2044 AD · The Great Convergence', b:`<b>2044 AD</b> is the single moment when <b>every cycle closes and restarts together</b> — the 60-year jú, the 180-year yuan, the 540-year palace, the 4860-year grand cycle and the 92,340-year Metonic super-cycle all reach their boundary at the very same year. The palace sequence returns to <b>Kǎn (1)</b>, the annual star returns to <b>1 (一白)</b>, and the whole count begins afresh. This simultaneous reset is the empirical anchor of the entire system. The next time all levels align again is <b>94,384 AD</b> (2044 + 92,340).` },
 
-  ju: { t:'Jú · 60 years', b:`The smallest cycle = one <b>60-year jú</b> (a full sexagenary round). Within a palace the jú number <b>advances</b>: +6 inside a yuan, +1 between yuan. Each jú's polarity — <b>Yang (陽遁)</b> or <b>Yin (陰遁)</b> — follows (palace# + jú#): odd = Yang, even = Yin; the centre palace (5) uses the jú number's parity alone. We are in jú <b>#7, Yang</b>, 1984 → 2044.` },
+  ju: { t:'Jú · 60 years', b: function(){
+    const yr=parseInt(document.getElementById('yr').value)||2026, a=calcAnn(yr);
+    if(!a) return 'N/A';
+    return `The smallest cycle = one <b>60-year jú</b> (a full sexagenary round). Within a palace the jú number advances <b>uniformly</b>: step of <b>+3</b> inside a yuan and <b>+1</b> between yuan for Yang palaces; <b>−3</b> and <b>−1</b> for Yin palaces. Each palace's polarity is <b>fixed</b> — <b>Yang Dun (陽遁)</b> for Kan (1), Zhen (3), Xun (4), Gen (8); <b>Yin Dun (陰遁)</b> for Li (9), Dui (7), Qian (6), Kun (2). The centre palace (5) follows a special split: 270 years Yin Dun then 270 years Yang Dun, with jú 1 straddling the boundary. We are in jú <b>#${a.juN}, ${a.dun}</b>, ${fmtY(a.juS)} → ${fmtY(a.juE)}.`;}
+  },
 };
 
 function showInfo(key){
   const e = EXPLAIN[key];
   if(!e) return;
   document.getElementById('modalTitle').textContent = e.t;
-  document.getElementById('modalBody').innerHTML = e.b;
+  document.getElementById('modalBody').innerHTML = typeof e.b === 'function' ? e.b() : e.b;
   document.getElementById('modal').style.display = 'flex';
 }
 function closeInfo(){ document.getElementById('modal').style.display = 'none'; }
