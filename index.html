@@ -206,13 +206,13 @@ const PI={
 
 // Annual system
 const GO=10155356,PSEQ=[1,9,8,7,6,5,4,3,2];
-const TERNE={
-  1:[[1,7,4],[2,8,5],[3,9,6]],9:[[9,6,3],[1,7,4],[2,8,5]],
-  8:[[8,5,2],[9,6,3],[1,7,4]],7:[[7,4,1],[8,5,2],[9,6,3]],
-  6:[[6,3,9],[7,4,1],[8,5,2]],5:[[5,2,8],[6,3,9],[7,4,1]],
-  4:[[4,1,7],[5,2,8],[6,3,9]],3:[[3,9,6],[4,1,7],[5,2,8]],
-  2:[[2,8,5],[3,9,6],[4,1,7]]
-};
+// ── SIMULATION RULES ──
+// Rule 1: Yang Dun palaces (fixed per palace)
+const YANG_PALS=new Set([1,3,4,8]); // Kan,Zhen,Xun,Gen=Yang; Li,Dui,Qian,Kun=Yin
+// Rule 3: Center palace (5) special 270 Yin + 270 Yang table [offset, duration, juN, dun]
+const CTR5=[[0,60,5,'Yin'],[60,60,2,'Yin'],[120,60,8,'Yin'],[180,60,4,'Yin'],
+  [240,30,1,'Yin'],[270,30,1,'Yang'],[300,60,4,'Yang'],
+  [360,60,5,'Yang'],[420,60,8,'Yang'],[480,60,2,'Yang']];
 const SCH=['天蓬','天芮','天沖','天輔','天禽','天心','天柱','天任','天英'];
 const SEN=['Porch','Rice','Rush','Assist','Fowl','Heart','Pillar','Duty','Hero'];
 const GCH={1:'休門',2:'死門',3:'傷門',4:'杜門',6:'開門',7:'驚門',8:'生門',9:'景門'};
@@ -244,16 +244,26 @@ function calcAnn(year){
   const pN=PSEQ[pi];
   const ti=Math.min(Math.floor(aPal/180),2),aTer=aPal-ti*180;
   const ji=Math.min(Math.floor(aTer/60),2);
-  const juN=TERNE[pN][ti][ji];
-  const dun=pN===5?(juN%2?'Yang':'Yin'):((pN+juN)%2?'Yang':'Yin');
-  const base=(gcN-1)*4860, p=base+pi*540, t=p+ti*180, j=t+ji*60;
+  let juN, dun, juOff, juDur;
+  if(pN===5){
+    // Rule 3: center palace — 270y Yin then 270y Yang, special jú table
+    const e=CTR5.find(([s,d])=>aPal>=s&&aPal<s+d)||CTR5[0];
+    juN=e[2]; dun=e[3]; juOff=e[0]; juDur=e[1];
+  } else {
+    // Rule 1: dun fixed per palace
+    const isY=YANG_PALS.has(pN); dun=isY?'Yang':'Yin';
+    // Rule 2: uniform jú (no skip-5): +3 within terna, +1 between (Yang); −3, −1 (Yin)
+    juN = isY ? ((pN-1+ti+ji*3)%9+9)%9+1 : ((pN-1-ti-ji*3)%9+9)%9+1;
+    juOff=ti*180+ji*60; juDur=60;
+  }
+  const base=(gcN-1)*4860, p=base+pi*540, t=p+ti*180, j=p+juOff;
   const scN=Math.floor(anni/92340)+1;
   return{year,gcN,pN,pi,ti,ji,juN,dun,
     scN, scS:a2y((scN-1)*92340), scE:a2y(scN*92340),
     gcS:a2y(base), gcE:a2y(base+4860),
     palS:a2y(p),  palE:a2y(p+540),
     terS:a2y(t),  terE:a2y(t+180),
-    juS:a2y(j),   juE:a2y(j+60)};
+    juS:a2y(j),   juE:a2y(j+juDur)};
 }
 
 // ── QMDJ TRANSPAN GENERATOR (轉盤) — verified vs 2025/2026/2027 reference charts ──
