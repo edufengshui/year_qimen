@@ -66,7 +66,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 /* ── CELL ROWS ── */
 
 /* Row 1: Deity */
-.r1{font-size:11.5px;color:#333;text-align:center;
+.r1{font-size:13.5px;color:#333;text-align:center;
   border-bottom:1px solid rgba(0,0,0,.15);padding-bottom:4px;margin-bottom:4px;
   white-space:nowrap;letter-spacing:.2px;flex-shrink:0}
 .r1 .dch{font-family:Georgia,serif;font-size:9.5px;color:#777;margin-left:3px}
@@ -76,13 +76,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 .hs{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;flex-shrink:0}
 .hs2{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;
   flex-shrink:0;align-self:flex-end}
-.sn{font-size:11.5px;color:#555;margin-left:auto;text-align:right;
+.sn{font-size:13.5px;color:#555;margin-left:auto;text-align:right;
   font-style:italic;line-height:1.25;align-self:flex-end;padding-bottom:2px}
 
 /* Row 3: Gate */
 .r3{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:2px 0}
-.gname{font-size:21px;font-weight:800;color:#111;letter-spacing:.4px;text-transform:uppercase}
+.gname{font-size:21px;font-weight:400;color:#111;letter-spacing:.4px;text-transform:uppercase}
 .gch{font-size:9.5px;color:#888;font-family:Georgia,serif;
   letter-spacing:2px;margin-top:2px}
 
@@ -95,7 +95,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 .ptri{margin-left:auto;display:flex;flex-direction:column-reverse;gap:3px}
 .fstar{font-size:14px;font-weight:800;font-family:Georgia,serif;line-height:1;flex-shrink:0;
   width:21px;height:21px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;border:1.6px solid currentColor;margin-left:5px}
+  border-radius:50%;border:1.6px solid currentColor;margin-left:auto}
 
 /* Center cell */
 .ctr-top{flex:1;display:flex;align-items:center;justify-content:center}
@@ -147,7 +147,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div class="wrap">
 
 <div class="title">
-  <h2>QMDJ 1080 Jú · Hour Rotating Pan</h2>
+  <h2>QMDJ Yearly chart</h2>
   <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
   <hr>
 </div>
@@ -331,8 +331,6 @@ function cell(pn, d, isAct, fStar){
       <div class="ctr-top"><div class="ctr-hs"><span class="${d.hhc}">${d.hh}</span></div></div>
       <div class="ctr-r4">
         <span class="es ${d.eec}">${d.ee}</span>
-        <span class="pn">5</span>
-        <div class="ptri">${triH(5)}</div>
         ${fsTag}
       </div>
     </div>`;
@@ -343,7 +341,7 @@ function cell(pn, d, isAct, fStar){
     <div class="r2">
       <span class="hs ${d.hhc}">${d.hh}</span>
       ${d.hh2?`<span class="hs2 ${d.hh2c}">${d.hh2}</span>`:''}
-      ${d.st?`<span class="sn">${d.st}</span>`:''}
+      ${d.st?`<span class="sn">${d.st}${(d.hh2||d.ee2)?'<br>Fowl':''}</span>`:''}
     </div>
     <div class="r3">
       ${d.gt?`<div class="gname">${d.gt}</div><div class="gch">${d.gc}</div>`
@@ -352,8 +350,6 @@ function cell(pn, d, isAct, fStar){
     <div class="r4">
       <span class="es ${d.eec}">${d.ee}</span>
       ${d.ee2?`<span class="es2 ${d.ee2c}">${d.ee2}</span>`:''}
-      <span class="pn">${pn}</span>
-      <div class="ptri">${triH(pn)}</div>
       ${fsTag}
     </div>
   </div>`;
@@ -447,10 +443,12 @@ function loadRef(){
   // dynamic QMDJ grid for this year
   const cells = genYearChart(yr);
   buildChart(cells, 0, `${a.dun} Jú ${a.juN} · ${YNAME[a.ti]} Cycle · Year: ${pilStr} ${pilCh}`);
-  // ABOVE chart: the Jú and Year tabs (copied from below; Year shows the Dun in English)
+  // ABOVE chart: four boxes — Year (with Dun), Decade, Annual Star, Jú
   document.getElementById('infoTop').innerHTML=`
-    <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>
-    <div class="ic" onclick="showInfo('year')"><div class="lb">Year · 1y</div><div class="vl">${fmtY(yr)}</div><div class="sb">${a.dun} Dun</div></div>`;
+    <div class="ic" onclick="showInfo('year')"><div class="lb">Year</div><div class="vl">${fmtY(yr)}</div><div class="sb">${pilStr} ${pilCh} · ${a.dun} Dun</div></div>
+    <div class="ic" onclick="showInfo('decade')"><div class="lb">Year Decade · 旬</div><div class="vl">${decStr}</div><div class="sb">${decCh}</div></div>
+    <div class="ic" onclick="showInfo('star')"><div class="lb">Annual Star</div><div class="vl ${C%2?'yg':'yn'}">${C} · center</div><div class="sb">${ZIBAI[C-1]}</div></div>
+    <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>`;
   // BELOW chart: the nested cycles, largest → smallest in time
   document.getElementById('infoBottom').innerHTML=`
     <div class="ic" onclick="showInfo('origin')"><div class="lb">Great Origin</div><div class="vl">${fmtY(a2y(0))}</div><div class="sb">year 1 of all cycles</div></div>
