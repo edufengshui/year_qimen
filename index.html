@@ -163,7 +163,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div class="wrap">
 
 <div class="title">
-  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v21</span></h2>
+  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v25</span></h2>
   <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
   <hr>
 </div>
@@ -386,7 +386,7 @@ function cell(pn, d, isAct, fStar){
         <span class="sn"><b>Fowl</b></span>
       </div>
       <div class="r4">
-        <span class="es ${d.eec}"${ysE?` style="${ysSq}"`:''}>${d.ee}</span>
+        <span class="es ${d.eec}">${d.ee}</span>
         ${fsTag}
       </div>
     </div>`;
@@ -401,7 +401,7 @@ function cell(pn, d, isAct, fStar){
     <div class="r2">
       <span class="hs ${d.hhc}"${d.hh===ys?` style="${ysSq}"`:''}>${d.hh}</span>
       ${d.hh2?`<span class="hs2 ${d.hh2c}"${d.hh2===ys?` style="${ysSq}"`:''}>${d.hh2}</span>`:''}
-      ${d.st?`<span class="sn">${d.st}${(d.hh2||d.ee2)?'<br><b>Fowl</b>':''}</span>`:''}
+      ${d.st?`<span class="sn">${d.st}${d.hh2?'<br><b>Fowl</b>':''}</span>`:''}
     </div>
     <div class="r3">
       ${d.gt?`<div class="gname"${zhiB?' style="font-weight:800"':''}>${d.gt}</div><div class="gch">${d.gc}${zhiB?' <span style="font-size:9px;color:#e04040;font-weight:600">值使</span>':''}</div>`
@@ -510,14 +510,12 @@ function loadRef(){
   showEventBanner(yr);
   // ABOVE chart: four boxes — Year (with Dun), Decade, Annual Star, Jú
   document.getElementById('infoTop').innerHTML=`
-    <div class="ic" onclick="showInfo('year')" style="flex:1.6">
-      <div class="lb">Year</div>
-      <div class="vl" style="font-size:22px">${fmtY(yr)}</div>
-      <div class="sb" style="font-size:16px;font-weight:700"><span class="${SCLS[STEMS_CH[pil.s]]}">${pilStr} ${pilCh}</span></div>
-      <div class="sb" style="font-size:14px;font-weight:600">${a.dun} Dun · <span style="font-size:11px;font-weight:400">旬 ${decCh}</span></div>
+    <div class="ic" onclick="showInfo('year')" style="flex:1.6;padding:6px 10px">
+      <div style="font-size:18px;font-weight:700"><span style="font-size:10px;color:#999;text-transform:uppercase;font-weight:400;margin-right:4px">Year</span>${fmtY(yr)} <span class="${SCLS[STEMS_CH[pil.s]]}">${pilStr} ${pilCh}</span></div>
+      <div class="sb" style="font-size:13px;margin-top:2px">${a.dun} Dun · <span style="font-size:11px">旬 ${decCh}</span></div>
     </div>
-    <div class="ic" onclick="showInfo('star')"><div class="lb">Annual Star</div><div class="vl ${C%2?'yg':'yn'}">${C} · center</div><div class="sb">${ZIBAI[C-1]}</div></div>
-    <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>`;
+    <div class="ic" onclick="showInfo('star')" style="padding:6px 8px"><div class="lb">Annual Star</div><div class="vl ${C%2?'yg':'yn'}" style="font-size:16px">${C} · center</div><div class="sb">${ZIBAI[C-1]}</div></div>
+    <div class="ic" onclick="showInfo('ju')" style="padding:6px 8px"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}" style="font-size:16px">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>`;
   // BELOW chart: the nested cycles, largest → smallest in time
   document.getElementById('infoBottom').innerHTML=`
     <div class="ic" onclick="showInfo('origin')"><div class="lb">Great Origin</div><div class="vl">${fmtY(a2y(0))}</div><div class="sb">year 1 of all cycles</div></div>
@@ -532,7 +530,7 @@ function loadRef(){
   window._monthStem=null;
   const mps=monthlyPillars(yr);
   document.getElementById('monthBar').innerHTML=mps.map((m,i)=>
-    `<div class="mc" onclick="highlightMonthStem('${m.sCh}',this)"><div class="ml">M${i+1} · ${MONTH_NAMES[i]}</div><div class="mv ${m.cls}">${m.sCh}${m.bCh}</div></div>`
+    `<div class="mc" onclick="highlightMonthStem('${m.sCh}',${m.b},this)"><div class="ml">M${i+1} · ${MONTH_NAMES[i]}</div><div class="mv ${m.cls}">${m.sCh}${m.bCh}</div></div>`
   ).join('');
 }
 
@@ -584,10 +582,13 @@ function monthlyPillars(yr){
   }
   return ms;
 }
+const JIA_CONCEAL={0:'戊',10:'己',8:'庚',6:'辛',4:'壬',2:'癸'}; // 甲子→戊,甲戌→己,甲申→庚,甲午→辛,甲辰→壬,甲寅→癸
 window._monthStem=null;
-function highlightMonthStem(stemCh,el){
+function highlightMonthStem(stemCh,brIdx,el){
   document.querySelectorAll('.month-hl').forEach(e=>e.classList.remove('month-hl'));
   document.querySelectorAll('.mc-act').forEach(e=>e.classList.remove('mc-act'));
+  // 甲 is hidden behind its Fu Tou
+  if(stemCh==='甲') stemCh=JIA_CONCEAL[brIdx]||stemCh;
   if(!stemCh||window._monthStem===stemCh){window._monthStem=null;return;}
   window._monthStem=stemCh;
   if(el)el.classList.add('mc-act');
