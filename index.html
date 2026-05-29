@@ -51,6 +51,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 .grid{display:grid;grid-template-columns:repeat(3,160px);grid-template-rows:repeat(3,158px);
   gap:2px;background:#000;margin:2px}
 
+/* ── MONTH BAR ── */
+#monthBar{max-width:590px;margin:10px auto 0;display:flex;overflow-x:auto;gap:4px;padding:4px 2px}
+.mc{flex:0 0 auto;padding:5px 6px;border-radius:5px;border:1.5px solid #ddd;cursor:pointer;
+  text-align:center;min-width:50px;transition:border-color .15s}
+.mc:hover{border-color:#999}
+.mc.mc-act{border-color:#e04040;background:#fff6f6}
+.ml{font-size:9px;color:#999;margin-bottom:2px}
+.mv{font-size:15px;font-weight:700;letter-spacing:1px}
+.month-hl{outline:2.5px solid #e04040;outline-offset:2px;border-radius:4px}
+
 /* ── EVENT BANNER ── */
 #eventBanner{max-width:580px;margin:0 auto 6px;padding:0 4px}
 .ev{padding:6px 10px;border-left:3px solid #e8a000;margin:4px 0;font-size:13px;
@@ -153,7 +163,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div class="wrap">
 
 <div class="title">
-  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v14</span></h2>
+  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v21</span></h2>
   <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
   <hr>
 </div>
@@ -170,6 +180,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div id="eventBanner"></div>
 <div class="chart-wrap"><div class="chart-scaler" id="scaler"><div id="chart"></div></div></div>
 <div class="info" id="infoBottom"></div>
+<div id="monthBar"></div>
 
 <div id="modal" class="modal" onclick="if(event.target===this)closeInfo()">
   <div class="modal-box">
@@ -338,19 +349,43 @@ function genYearChart(year){
   return cells;
 }
 
+// ── PALACE SHADING (year branch + empty palaces) ────────────────────────
+const BRANCH_PAL=[1,8,8,3,4,4,9,2,2,7,6,6]; // 子→1,丑→8,寅→8,卯→3,辰→4,巳→4,午→9,未→2,申→2,酉→7,戌→6,亥→6
+const PAL_ELEM={1:'water',2:'earth',3:'wood',4:'wood',5:'earth',6:'metal',7:'metal',8:'earth',9:'fire'};
+const ELEM_BG={water:'#edf2ff',fire:'#ffebeb',wood:'#edfced',
+  metal:'#eff0f3',earth:'#fff5e6'};
+const EMPTY_BG='#ebebeb'; // very light gray — distinct from metal and white
+
+function computeEmptyPals(yr){
+  const a=calcAnn(yr);if(!a)return new Set();
+  const dec=yearDecade(yr), hb=dec.hb;
+  const e1=(hb-2+12)%12, e2=(hb-1+12)%12;
+  const res=new Set();
+  [e1,e2].forEach(brIdx=>{ res.add(BRANCH_PAL[brIdx]); });
+  return res;
+}
+
 // ── CELL BUILDER ────────────────────────────────────────────────────────
 function cell(pn, d, isAct, fStar){
   const isCtr=pn===5;
   const cls='cell'+(isAct?' act':'')+(isCtr?' ctr':'');
   const fsCls = fStar%2 ? 'fyang' : 'fyin';
   const fsTag = `<span class="fstar ${fsCls}" title="Annual flying star ${fStar}">${fStar}</span>`;
+  // Palace shading: year-branch (element color) or empty (sand)
+  let bg='';
+  if(window._emptyPals&&window._emptyPals.has(pn)) bg=`background:${EMPTY_BG}`;
+  if(pn===window._yearBranchPal) bg=`background:${ELEM_BG[PAL_ELEM[pn]]}`;
+  const bgS=bg?` style="${bg}"`:'';
 
   if(isCtr){
     const ysSq='border:1.5px solid currentColor;padding:0 2px;border-radius:2px';
     const ysH=d.hh===window._ys, ysE=d.ee===window._ys;
-    return `<div class="${cls}" title="Center Palace 5 · Annual star ${fStar}">
-      <div class="ctr-top"><div class="ctr-hs"><span class="${d.hhc}"${ysH?` style="${ysSq}"`:''}>${d.hh}</span></div></div>
-      <div class="ctr-r4">
+    return `<div class="cell"${bgS} style="justify-content:space-between" title="Center Palace 5 · Fowl 天禽 · Annual star ${fStar}">
+      <div class="r2">
+        <span class="hs ${d.hhc}">${d.hh}</span>
+        <span class="sn"><b>Fowl</b></span>
+      </div>
+      <div class="r4">
         <span class="es ${d.eec}"${ysE?` style="${ysSq}"`:''}>${d.ee}</span>
         ${fsTag}
       </div>
@@ -361,12 +396,12 @@ function cell(pn, d, isAct, fStar){
   const zhiB=pn===window._zhiShi;
   const ys=window._ys||'';
   const ysSq='border:1.5px solid currentColor;padding:0 2px;border-radius:2px';
-  return `<div class="${cls}" title="${PI[pn].d} · ${PI[pn].n} · Annual star ${fStar}">
+  return `<div class="${cls}"${bgS} title="${PI[pn].d} · ${PI[pn].n} · Annual star ${fStar}">
     <div class="r1"${cmdB?' style="font-weight:800"':''}>${d.dy}<span class="dch">${d.dc}</span></div>
     <div class="r2">
       <span class="hs ${d.hhc}"${d.hh===ys?` style="${ysSq}"`:''}>${d.hh}</span>
       ${d.hh2?`<span class="hs2 ${d.hh2c}"${d.hh2===ys?` style="${ysSq}"`:''}>${d.hh2}</span>`:''}
-      ${d.st?`<span class="sn">${d.st}${(d.hh2||d.ee2)?'<br>Fowl':''}</span>`:''}
+      ${d.st?`<span class="sn">${d.st}${(d.hh2||d.ee2)?'<br><b>Fowl</b>':''}</span>`:''}
     </div>
     <div class="r3">
       ${d.gt?`<div class="gname"${zhiB?' style="font-weight:800"':''}>${d.gt}</div><div class="gch">${d.gc}${zhiB?' <span style="font-size:9px;color:#e04040;font-weight:600">值使</span>':''}</div>`
@@ -467,8 +502,10 @@ function loadRef(){
   const yuanCh = ['上元','中元','下元'][a.ti];
   // dynamic QMDJ grid for this year
   const cells = genYearChart(yr);
-  window._ys = STEMS_CH[pil.s];            // year stem to bold
-  window._zhiShi = cells ? cells._fu.gate : 0; // 値使 palace to bold gate
+  window._ys = STEMS_CH[pil.s];            // year stem to highlight
+  window._zhiShi = cells ? cells._fu.gate : 0; // 値使 palace
+  window._yearBranchPal = BRANCH_PAL[pil.b]; // palace hosting year branch
+  window._emptyPals = computeEmptyPals(yr);   // empty (空亡) palaces
   buildChart(cells, 0, `${a.dun} Jú ${a.juN} · ${YNAME[a.ti]} Cycle · Year: ${pilStr} ${pilCh}`);
   showEventBanner(yr);
   // ABOVE chart: four boxes — Year (with Dun), Decade, Annual Star, Jú
@@ -491,6 +528,12 @@ function loadRef(){
     <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>
     <div class="ic" onclick="showInfo('year')"><div class="lb">Year · 1y</div><div class="vl">${fmtY(yr)}</div><div class="sb">the present year</div></div>
     <div class="ic ic-hl" onclick="showInfo('reset')"><div class="lb">Convergence ★</div><div class="vl yg">2044 AD</div><div class="sb">all cycles restart</div></div>`;
+  // Monthly pillars bar
+  window._monthStem=null;
+  const mps=monthlyPillars(yr);
+  document.getElementById('monthBar').innerHTML=mps.map((m,i)=>
+    `<div class="mc" onclick="highlightMonthStem('${m.sCh}',this)"><div class="ml">M${i+1} · ${MONTH_NAMES[i]}</div><div class="mv ${m.cls}">${m.sCh}${m.bCh}</div></div>`
+  ).join('');
 }
 
 
@@ -527,6 +570,31 @@ function showInfo(key){
   document.getElementById('modal').style.display = 'flex';
 }
 function closeInfo(){ document.getElementById('modal').style.display = 'none'; }
+
+// ── MONTHLY PILLARS (五虎遁) ────────────────────────────────────────────
+const MONTH_NAMES=['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
+const MONTH_BR=[2,3,4,5,6,7,8,9,10,11,0,1]; // 寅卯辰巳午未申酉戌亥子丑
+function monthlyPillars(yr){
+  const ys=yearPillar(yr).s;
+  const start=[2,4,6,8,0,2,4,6,8,0][ys]; // 五虎遁: year甲→丙, 乙→戊, 丙→庚...
+  const ms=[];
+  for(let i=0;i<12;i++){
+    const si=(start+i)%10, bi=MONTH_BR[i];
+    ms.push({s:si,b:bi,sCh:STEMS_CH[si],bCh:BR_CH[bi],cls:SCLS[STEMS_CH[si]]||''});
+  }
+  return ms;
+}
+window._monthStem=null;
+function highlightMonthStem(stemCh,el){
+  document.querySelectorAll('.month-hl').forEach(e=>e.classList.remove('month-hl'));
+  document.querySelectorAll('.mc-act').forEach(e=>e.classList.remove('mc-act'));
+  if(!stemCh||window._monthStem===stemCh){window._monthStem=null;return;}
+  window._monthStem=stemCh;
+  if(el)el.classList.add('mc-act');
+  document.querySelectorAll('#chart .hs, #chart .es, #chart .hs2, #chart .es2').forEach(sp=>{
+    if(sp.textContent.trim()===stemCh) sp.classList.add('month-hl');
+  });
+}
 
 // ── HISTORICAL EVENTS DATABASE ──────────────────────────────────────────
 const EVENTS = [
