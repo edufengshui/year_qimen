@@ -51,6 +51,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 .grid{display:grid;grid-template-columns:repeat(3,160px);grid-template-rows:repeat(3,158px);
   gap:2px;background:#000;margin:2px}
 
+/* ── EVENT BANNER ── */
+#eventBanner{max-width:580px;margin:0 auto 6px;padding:0 4px}
+.ev{padding:6px 10px;border-left:3px solid #e8a000;margin:4px 0;font-size:13px;
+  background:#fffdf3;border-radius:0 4px 4px 0;color:#444;line-height:1.4}
+.ev b{color:#222}
+
 /* ── TRIGRAM BARS ── */
 .tri{display:flex;flex-direction:column-reverse;gap:3px}
 .ts{height:3px;background:rgba(0,0,0,.55);border-radius:1px}
@@ -147,7 +153,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div class="wrap">
 
 <div class="title">
-  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v4</span></h2>
+  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v8</span></h2>
   <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
   <hr>
 </div>
@@ -156,9 +162,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
   <label>YEAR</label>
   <input type="number" id="yr" value="2026" style="width:86px">
   <button class="btn btn-ref" onclick="loadRef()">Draw Chart</button>
+  <button class="btn" onclick="showAllEvents()" style="margin-left:6px;background:#f5f0e0;color:#555">📜 Events</button>
 </div>
 
 <div class="info" id="infoTop"></div>
+<div id="eventBanner"></div>
 <div class="chart-wrap"><div class="chart-scaler" id="scaler"><div id="chart"></div></div></div>
 <div class="info" id="infoBottom"></div>
 
@@ -453,6 +461,7 @@ function loadRef(){
   // dynamic QMDJ grid for this year
   const cells = genYearChart(yr);
   buildChart(cells, 0, `${a.dun} Jú ${a.juN} · ${YNAME[a.ti]} Cycle · Year: ${pilStr} ${pilCh}`);
+  showEventBanner(yr);
   // ABOVE chart: four boxes — Year (with Dun), Decade, Annual Star, Jú
   document.getElementById('infoTop').innerHTML=`
     <div class="ic" onclick="showInfo('year')"><div class="lb">Year</div><div class="vl">${fmtY(yr)}</div><div class="sb">${pilStr} ${pilCh} · ${a.dun} Dun</div></div>
@@ -507,6 +516,202 @@ function showInfo(key){
   document.getElementById('modal').style.display = 'flex';
 }
 function closeInfo(){ document.getElementById('modal').style.display = 'none'; }
+
+// ── HISTORICAL EVENTS DATABASE ──────────────────────────────────────────
+const EVENTS = [
+  // Antiquity
+  [-2560,"Great Pyramid of Giza completed (approximate)"],
+  [-1600,"Minoan eruption of Thera/Santorini — devastates Aegean"],
+  [-1177,"Bronze Age Collapse — Sea Peoples, fall of multiple civilisations"],
+  [-776,"First Olympic Games (traditional date)"],
+  [-753,"Founding of Rome (traditional date)"],
+  [-551,"Birth of Confucius"],
+  [-509,"Roman Republic established"],
+  [-490,"Battle of Marathon — Greeks defeat Persians"],
+  [-480,"Battles of Thermopylae and Salamis"],
+  [-431,"Start of Peloponnesian War"],
+  [-331,"Alexander the Great defeats Persia at Gaugamela"],
+  [-221,"Qin Shi Huang unifies China — Qin Dynasty"],
+  [-218,"Hannibal crosses the Alps — Second Punic War"],
+  [-146,"Destruction of Carthage; Roman conquest of Greece"],
+  [-44,"Assassination of Julius Caesar"],
+  [-31,"Battle of Actium — Octavian defeats Antony & Cleopatra"],
+  [-27,"Roman Republic becomes Roman Empire (Augustus)"],
+  // Classical era
+  [9,"Battle of Teutoburg Forest — Rome loses 3 legions in Germania"],
+  [33,"Crucifixion of Jesus (approximate)"],
+  [70,"Destruction of the Second Temple in Jerusalem"],
+  [79,"Eruption of Mount Vesuvius — Pompeii & Herculaneum destroyed"],
+  [185,"⭐ SN 185 — earliest confirmed supernova (Chinese astronomers, 8 months visible)"],
+  [280,"Jin Dynasty reunifies China after Three Kingdoms"],
+  [313,"Edict of Milan — Christianity legalised in Roman Empire"],
+  [365,"Crete earthquake & tsunami (M~8.0) — eastern Mediterranean devastated"],
+  [393,"⭐ SN 393 — probable supernova in Scorpius (Chinese records, 8 months)"],
+  [395,"Permanent division of Roman Empire into East & West"],
+  [410,"Sack of Rome by Visigoths"],
+  [476,"Fall of the Western Roman Empire"],
+  [536,"Volcanic winter — global crop failure, famine, plague ('worst year to be alive')"],
+  // Islamic & Early Medieval
+  [622,"Hijra — Islamic calendar begins"],
+  [632,"Death of Prophet Muhammad"],
+  [793,"Viking raid on Lindisfarne — Viking Age begins"],
+  [800,"Charlemagne crowned Holy Roman Emperor"],
+  [869,"Jōgan earthquake & tsunami (M~8.6, Japan — Sanriku coast)"],
+  [960,"Song Dynasty founded in China"],
+  // High Medieval
+  [1006,"⭐ SN 1006 — brightest stellar event in recorded history (mag −7.5, in Lupus)"],
+  [1054,"⭐ SN 1054 — supernova creates Crab Nebula (Chinese, Arab, Japanese records)"],
+  [1066,"Norman Conquest of England — Battle of Hastings"],
+  [1181,"⭐ SN 1181 — supernova in Cassiopeia (visible 185 days)"],
+  [1187,"Saladin captures Jerusalem"],
+  [1206,"Genghis Khan founds the Mongol Empire"],
+  [1215,"Magna Carta signed in England"],
+  [1258,"Mongols sack Baghdad — end of Abbasid Caliphate"],
+  [1279,"Mongol conquest of Song Dynasty — Yuan Dynasty"],
+  // Late Medieval
+  [1347,"Black Death arrives in Europe (~75–200 million dead over following years)"],
+  [1368,"Ming Dynasty founded in China"],
+  [1431,"Joan of Arc executed"],
+  [1453,"Fall of Constantinople — end of Byzantine Empire"],
+  // Early Modern
+  [1492,"Columbus reaches the Americas"],
+  [1517,"Martin Luther's 95 Theses — Protestant Reformation"],
+  [1543,"Copernicus publishes heliocentric model"],
+  [1556,"Shaanxi earthquake (M~8.0, ~830,000 dead — deadliest earthquake ever)"],
+  [1572,"⭐ Tycho's Supernova (SN 1572) in Cassiopeia — observed by Tycho Brahe"],
+  [1588,"Spanish Armada defeated"],
+  [1604,"⭐ Kepler's Supernova (SN 1604) in Ophiuchus — last observed Milky Way SN"],
+  [1610,"Galileo publishes telescopic observations (Jupiter moons, lunar craters)"],
+  [1618,"Start of Thirty Years' War"],
+  [1644,"Fall of Ming Dynasty — Qing Dynasty begins"],
+  [1666,"Great Fire of London"],
+  [1707,"Mount Fuji last eruption (Hōei eruption, Japan)"],
+  // Enlightenment & Revolutions
+  [1755,"Great Lisbon earthquake & tsunami (M8.5–9.0, ~60,000 dead)"],
+  [1776,"US Declaration of Independence"],
+  [1783,"Treaty of Paris — American independence recognised"],
+  [1789,"French Revolution begins — storming of the Bastille"],
+  [1804,"Napoleon crowned Emperor of France"],
+  [1812,"Napoleon's invasion of Russia"],
+  [1815,"Battle of Waterloo; Mount Tambora eruption → 'Year Without a Summer' (1816)"],
+  // 19th century
+  [1848,"European revolutions across multiple nations"],
+  [1854,"Ansei-Tōkai earthquake & tsunami (M8.4, Japan)"],
+  [1859,"Carrington Event — most intense solar storm recorded"],
+  [1861,"Start of US Civil War"],
+  [1865,"End of US Civil War; assassination of Abraham Lincoln"],
+  [1868,"Meiji Restoration in Japan"],
+  [1871,"German unification under Bismarck"],
+  [1883,"Krakatoa eruption (36,000+ dead, global cooling, vivid sunsets for years)"],
+  // Early 20th century
+  [1902,"Mount Pelée eruption (Martinique, ~29,000 dead)"],
+  [1906,"San Francisco earthquake (M7.9, ~3,000 dead)"],
+  [1908,"Tunguska event — airburst over Siberia (~12 Mt, 2,150 km² flattened)"],
+  [1912,"Sinking of the Titanic"],
+  [1914,"Start of World War I"],
+  [1917,"Russian Revolution — Bolsheviks seize power"],
+  [1918,"End of World War I; Spanish Flu pandemic begins (~50 million dead)"],
+  [1923,"Great Kantō earthquake (M7.9, ~142,000 dead, Japan)"],
+  [1929,"Wall Street Crash — Great Depression begins"],
+  // WWII era
+  [1939,"Start of World War II"],
+  [1941,"Attack on Pearl Harbor — US enters WWII"],
+  [1944,"D-Day — Allied invasion of Normandy"],
+  [1945,"End of WWII; atomic bombs on Hiroshima & Nagasaki"],
+  // Cold War
+  [1947,"Indian independence and partition"],
+  [1948,"State of Israel founded"],
+  [1949,"People's Republic of China founded"],
+  [1957,"Sputnik launched — Space Age begins"],
+  [1961,"Berlin Wall erected; Yuri Gagarin — first human in space"],
+  [1962,"Cuban Missile Crisis — closest to nuclear war"],
+  [1963,"Assassination of President Kennedy"],
+  [1969,"First humans on the Moon (Apollo 11)"],
+  [1976,"Tangshan earthquake (M7.5, ~242,000 dead, China)"],
+  [1986,"Chernobyl nuclear disaster (Ukraine)"],
+  [1989,"Fall of the Berlin Wall; Tiananmen Square protests"],
+  [1991,"Dissolution of the Soviet Union"],
+  // 21st century
+  [2001,"September 11 attacks — World Trade Center & Pentagon"],
+  [2004,"Indian Ocean tsunami (M9.1, ~227,000 dead)"],
+  [2005,"Hurricane Katrina (US Gulf Coast, ~1,800 dead)"],
+  [2008,"Sichuan earthquake (M7.9, ~87,000 dead); Global financial crisis"],
+  [2010,"Haiti earthquake (M7.0, ~316,000 dead)"],
+  [2011,"Tōhoku earthquake & tsunami (M9.1, Japan); Fukushima nuclear disaster"],
+  [2013,"Chelyabinsk meteor — largest airburst since Tunguska (~500 kt)"],
+  [2020,"COVID-19 pandemic begins — global lockdowns"],
+  // ── Additional: Financial crises ──
+  [1637,"Tulip Mania crash — first recorded speculative bubble (Netherlands)"],
+  [1720,"South Sea Bubble — financial crisis devastates England"],
+  [1873,"Panic of 1873 — Long Depression begins (~6 years of global recession)"],
+  [1907,"Panic of 1907 — banking crisis; triggers creation of Federal Reserve"],
+  [1973,"Oil crisis — OPEC embargo triggers global recession and energy shock"],
+  [1987,"Black Monday — largest single-day stock market crash in history (−22%)"],
+  [1997,"Asian financial crisis — currencies collapse across East Asia"],
+  [2000,"Dot-com bubble bursts — NASDAQ loses 78% of value by 2002"],
+  // ── Additional: Decisive battles ──
+  [-216,"Battle of Cannae — Hannibal's greatest tactical victory over Rome"],
+  [-202,"Battle of Zama — Scipio defeats Hannibal; end of Second Punic War"],
+  [-48,"Battle of Pharsalus — Caesar defeats Pompey; Roman Republic collapses"],
+  [636,"Battle of Yarmouk — Arab conquest of Byzantine Levant"],
+  [732,"Battle of Tours — Charles Martel halts Muslim advance into Western Europe"],
+  [1241,"Battle of Mohi — Mongol invasion reaches Hungary, devastates Europe"],
+  [1571,"Battle of Lepanto — Holy League defeats Ottoman fleet; Ottoman naval expansion halted"],
+  [1683,"Battle of Vienna — Ottoman siege repelled; turning point for Central Europe"],
+  [1757,"Battle of Plassey — British East India Company conquers Bengal"],
+  [1805,"Battle of Trafalgar — Nelson defeats Franco-Spanish fleet; Austerlitz — Napoleon's greatest victory"],
+  [1863,"Battle of Gettysburg — turning point of US Civil War"],
+  [1870,"Battle of Sedan — Franco-Prussian War; fall of French Second Empire"],
+  [1905,"Battle of Tsushima — Japan defeats Russian fleet; first Asian victory over European power"],
+  [1916,"Battles of Verdun and the Somme — bloodiest year of WWI (~2 million casualties)"],
+  [1940,"Battle of Britain — RAF repels Luftwaffe air campaign"],
+  [1942,"Battles of Midway, El Alamein, Stalingrad begin — three turning points of WWII"],
+  [1943,"Battle of Stalingrad ends — decisive Soviet victory; Battle of Kursk — largest tank battle"],
+];
+
+function showEventBanner(yr){
+  const b=document.getElementById('eventBanner');
+  if(!b)return;
+  const m=EVENTS.filter(([y])=>y===yr);
+  b.innerHTML=m.map(([y,d])=>`<div class="ev"><b>${fmtY(y)}:</b> ${d}</div>`).join('');
+}
+
+const EFILTERS = [
+  ['All', null],
+  ['⚔️ Battles', /battle|cannae|zama|pharsalus|lepanto|yarmouk|tours|mohi|vienna 1683|plassey|trafalgar|austerlitz|gettysburg|sedan|tsushima|verdun|somme|battle of britain|midway|alamein|stalingrad|kursk|hastings|thermopylae|salamis|gaugamela|actium|d-day|normandy|marathon|teutoburg|pearl harbor|armada|hannibal/i],
+  ['💰 Financial', /crash|panic|bubble|depression|financial|crisis|mania|monday|oil crisis|dot-com|nasdaq/i],
+  ['🌍 Disasters', /earthquake|eruption|tsunami|volcanic|hurricane|tambora|krakatoa|vesuvius|pelée|fuji|thera|santorini|lisbon|tangshan|sichuan|haiti|tōhoku|fukushima|kantō|fire of london|sanriku|crete earthquake|titanic|crop failure|famine|chernobyl|nuclear disaster/i],
+  ['☄️ Cosmic', /supernova|sn \d|sn 1|tunguska|chelyabinsk|carrington|meteor|airburst|solar storm/i],
+  ['🔬 Science', /moon|sputnik|gagarin|copernicus|galileo|heliocentric|space age|apollo|telescope/i],
+  ['🦠 Pandemic', /plague|flu|pandemic|black death|covid|spanish flu/i],
+  ['👑 Political', /empire|dynasty|founded|unification|independence|revolution|republic|fall of|sack |collapse|dissolution|partition|conquest|crowned|emperor|magna carta|declaration|edict|reformation|luther|columbus|americas|assassination|berlin wall|soviet|ussr|israel|ottoman|byzantine|constantinople|rome|ming|qing|yuan|song|qin|napoleon|bismarck|meiji|viking|charlemagne|hijra|muhammad|war begins|war ends|start of.*war|end of.*war|civil war|world war|september 11|kennedy|lincoln|caesar|cleopatra|olympic|temple|jerusalem|christianity|islam|pyramid|confucius|crucifixion|jesus|joan|atomic|hiroshima|nagasaki|wwii/i],
+];
+
+function showAllEvents(filterIdx){
+  if(filterIdx===undefined) filterIdx=0;
+  const [label,regex]=EFILTERS[filterIdx]||EFILTERS[0];
+  const sorted=[...EVENTS].sort((a,b)=>a[0]-b[0]);
+  const filtered=regex?sorted.filter(([y,d])=>regex.test(d)):sorted;
+  const yr=parseInt(document.getElementById('yr').value)||2026;
+  let html='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">';
+  EFILTERS.forEach(([lbl],i)=>{
+    const sel=i===filterIdx?'background:#e8a000;color:#fff':'background:#f0ede4;color:#555';
+    html+=`<button onclick="showAllEvents(${i})" style="border:none;padding:5px 10px;border-radius:12px;font-size:12px;cursor:pointer;${sel}">${lbl}</button>`;
+  });
+  html+='</div>';
+  html+='<div style="max-height:65vh;overflow-y:auto;font-size:14px;line-height:1.6">';
+  html+=`<p style="color:#888;margin:0 0 8px">${filtered.length} event${filtered.length!==1?'s':''}${regex?' in category':' total'}. Click a year to load its chart.</p>`;
+  filtered.forEach(([y,d])=>{
+    const ann=calcAnn(y);
+    const tag=ann?`<span style="font-size:11px;color:#999"> [P${ann.pN} ${ann.dun[0]}${ann.juN}]</span>`:'';
+    const hl=y===yr?' style="background:#fff8e0;padding:2px 4px;border-radius:3px"':'';
+    html+=`<div${hl}><a href="#" onclick="document.getElementById('yr').value='${y}';loadRef();closeInfo();return false" style="color:#2a6496;text-decoration:none"><b>${fmtY(y)}</b></a>: ${d}${tag}</div>`;
+  });
+  html+='</div>';
+  document.getElementById('modalTitle').textContent='📜 Historical Events Database';
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('modal').style.display='flex';
+}
 
 document.getElementById('yr').addEventListener('keydown',e=>{if(e.key==='Enter')loadRef();});
 document.getElementById('yr').addEventListener('change',loadRef);
