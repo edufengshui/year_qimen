@@ -113,7 +113,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 .fw{color:#4fc34f}  /* 甲乙 Wood: green */
 .ff{color:#f05050}  /* 丙丁 Fire: red */
 .fe{color:#f5a623}  /* 戊己 Earth: amber/gold */
-.fmy{color:#e06040} /* 庚 Metal Yang: dark orange-red */
+.fmy{color:#aaaaaa} /* 庚 Metal Yang: silver-gray (same as 辛) */
 .fmn{color:#aaaaaa} /* 辛 Metal Yin: silver-gray */
 .fwt{color:#5c99f0} /* 壬癸 Water: blue */
 
@@ -153,7 +153,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div class="wrap">
 
 <div class="title">
-  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v12</span></h2>
+  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v14</span></h2>
   <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
   <hr>
 </div>
@@ -346,11 +346,12 @@ function cell(pn, d, isAct, fStar){
   const fsTag = `<span class="fstar ${fsCls}" title="Annual flying star ${fStar}">${fStar}</span>`;
 
   if(isCtr){
+    const ysSq='border:1.5px solid currentColor;padding:0 2px;border-radius:2px';
     const ysH=d.hh===window._ys, ysE=d.ee===window._ys;
     return `<div class="${cls}" title="Center Palace 5 · Annual star ${fStar}">
-      <div class="ctr-top"><div class="ctr-hs"><span class="${d.hhc}"${ysH?' style="font-weight:800"':''}>${d.hh}</span></div></div>
+      <div class="ctr-top"><div class="ctr-hs"><span class="${d.hhc}"${ysH?` style="${ysSq}"`:''}>${d.hh}</span></div></div>
       <div class="ctr-r4">
-        <span class="es ${d.eec}"${ysE?' style="font-weight:800"':''}>${d.ee}</span>
+        <span class="es ${d.eec}"${ysE?` style="${ysSq}"`:''}>${d.ee}</span>
         ${fsTag}
       </div>
     </div>`;
@@ -359,20 +360,21 @@ function cell(pn, d, isAct, fStar){
   const cmdB=d.dy==='Commander';
   const zhiB=pn===window._zhiShi;
   const ys=window._ys||'';
+  const ysSq='border:1.5px solid currentColor;padding:0 2px;border-radius:2px';
   return `<div class="${cls}" title="${PI[pn].d} · ${PI[pn].n} · Annual star ${fStar}">
     <div class="r1"${cmdB?' style="font-weight:800"':''}>${d.dy}<span class="dch">${d.dc}</span></div>
     <div class="r2">
-      <span class="hs ${d.hhc}"${d.hh===ys?' style="font-weight:800"':''}>${d.hh}</span>
-      ${d.hh2?`<span class="hs2 ${d.hh2c}"${d.hh2===ys?' style="font-weight:800"':''}>${d.hh2}</span>`:''}
+      <span class="hs ${d.hhc}"${d.hh===ys?` style="${ysSq}"`:''}>${d.hh}</span>
+      ${d.hh2?`<span class="hs2 ${d.hh2c}"${d.hh2===ys?` style="${ysSq}"`:''}>${d.hh2}</span>`:''}
       ${d.st?`<span class="sn">${d.st}${(d.hh2||d.ee2)?'<br>Fowl':''}</span>`:''}
     </div>
     <div class="r3">
-      ${d.gt?`<div class="gname"${zhiB?' style="font-weight:800"':''}>${d.gt}</div><div class="gch">${d.gc}</div>`
+      ${d.gt?`<div class="gname"${zhiB?' style="font-weight:800"':''}>${d.gt}</div><div class="gch">${d.gc}${zhiB?' <span style="font-size:9px;color:#e04040;font-weight:600">值使</span>':''}</div>`
             :`<div style="opacity:.15;font-size:20px">—</div>`}
     </div>
     <div class="r4">
-      <span class="es ${d.eec}"${d.ee===ys?' style="font-weight:800"':''}>${d.ee}</span>
-      ${d.ee2?`<span class="es2 ${d.ee2c}"${d.ee2===ys?' style="font-weight:800"':''}>${d.ee2}</span>`:''}
+      <span class="es ${d.eec}"${d.ee===ys?` style="${ysSq}"`:''}>${d.ee}</span>
+      ${d.ee2?`<span class="es2 ${d.ee2c}"${d.ee2===ys?` style="${ysSq}"`:''}>${d.ee2}</span>`:''}
       ${fsTag}
     </div>
   </div>`;
@@ -474,8 +476,8 @@ function loadRef(){
     <div class="ic" onclick="showInfo('year')" style="flex:1.6">
       <div class="lb">Year</div>
       <div class="vl" style="font-size:22px">${fmtY(yr)}</div>
-      <div class="sb" style="font-size:13px;font-weight:600">${pilStr} ${pilCh}</div>
-      <div class="sb">${a.dun} Dun · 旬 ${decCh}</div>
+      <div class="sb" style="font-size:16px;font-weight:700"><span class="${SCLS[STEMS_CH[pil.s]]}">${pilStr} ${pilCh}</span></div>
+      <div class="sb" style="font-size:14px;font-weight:600">${a.dun} Dun · <span style="font-size:11px;font-weight:400">旬 ${decCh}</span></div>
     </div>
     <div class="ic" onclick="showInfo('star')"><div class="lb">Annual Star</div><div class="vl ${C%2?'yg':'yn'}">${C} · center</div><div class="sb">${ZIBAI[C-1]}</div></div>
     <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>`;
@@ -771,17 +773,16 @@ function showGrandCycle(){
     h+=`<div style="font-size:10px;text-align:center;color:${dunCol2};font-weight:600">${p.dun} Dun</div>`;
     h+=`<div style="font-size:9px;text-align:center;color:#aaa;margin-bottom:5px">${fmtY(p.s)} → ${fmtY(p.e)}</div>`;
     h+=`<div style="position:absolute;top:3px;right:5px;font-size:8px;color:#bbb">${p.ord}</div>`;
-    // 3×3 jú grid with yuan row labels
-    const yuanL=['上','中','下'];
-    h+='<div style="display:grid;grid-template-columns:14px repeat(3,1fr);gap:1px;align-items:center">';
-    for(let ti=0;ti<3;ti++){
-      h+=`<div style="font-size:8px;color:#ccc;text-align:center">${yuanL[ti]}</div>`;
-      for(let ji=0;ji<3;ji++){
+    // 3×3 jú grid: columns = terne (下中上 right-to-left), rows = jú within terna
+    h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;text-align:center">';
+    h+='<div style="font-size:8px;color:#ccc">下</div><div style="font-size:8px;color:#ccc">中</div><div style="font-size:8px;color:#ccc">上</div>';
+    for(let ji=0;ji<3;ji++){
+      for(let ti=2;ti>=0;ti--){
         const j=p.jus[ti*3+ji];
         const isCur=p.cur&&ti===a.ti&&ji===a.ji;
         const col=j.dun==='Yang'?'#e8a000':'#5c99f0';
         const circle=isCur?'border:2.5px solid #e04040;border-radius:50%;':'';
-        h+=`<div style="text-align:center;padding:1px"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;font-size:15px;font-weight:700;color:${col};${circle}">${j.juN}</span></div>`;
+        h+=`<div style="padding:1px"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;font-size:15px;font-weight:700;color:${col};${circle}">${j.juN}</span></div>`;
       }
     }
     h+='</div></div>';
