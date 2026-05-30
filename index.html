@@ -166,7 +166,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:1
 <div class="wrap">
 
 <div class="title">
-  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v26</span></h2>
+  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v28</span></h2>
   <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
   <hr>
 </div>
@@ -513,7 +513,7 @@ function loadRef(){
   showEventBanner(yr);
   // ABOVE chart: four boxes — Year (with Dun), Decade, Annual Star, Jú
   document.getElementById('infoTop').innerHTML=`
-    <div class="ic" onclick="showInfo('year')" style="flex:1.6;padding:6px 10px">
+    <div class="ic" onclick="showInfo('year')" style="flex:1.1;padding:6px 10px">
       <div style="font-size:18px;font-weight:700"><span style="font-size:10px;color:#999;text-transform:uppercase;font-weight:400;margin-right:4px">Year</span>${fmtY(yr)} <span class="${SCLS[STEMS_CH[pil.s]]}">${pilStr} ${pilCh}</span></div>
       <div class="sb" style="font-size:13px;margin-top:2px">${a.dun} Dun · <span style="font-size:11px">旬 ${decCh}</span></div>
     </div>
