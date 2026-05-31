@@ -1,904 +1,431 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>QMDJ Chart · FSAdvisor</title>
+<title>QMDJ Yearly Chart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital@0;1&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#eae7de;min-height:100vh;padding:12px 8px;overflow-x:hidden}
-.wrap{max-width:640px;margin:0 auto;width:100%}
+  :root{
+    --bg:#ece6da; --bg2:#e4ddcd; --paper:#fbf8f1; --ink:#2b2620; --ink-soft:#6a6052;
+    --green:#2f6f53; --green-d:#234f3c; --gold:#a9863f; --gold-d:#7d6024; --cinnabar:#b5432f;
+    --line:#cfc6b2; --line-soft:#e0d8c6;
+    /* 五行 */
+    --wood:#3f8f4a; --fire:#c0392b; --earth:#bd8b2a; --metal:#7d8893; --water:#2f6da8;
+    /* porte */
+    --auspic:#e7efe5; --inauspic:#f4e6e3; --neutral:#f3eee2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'EB Garamond',serif; color:var(--ink); line-height:1.5;
+    background:
+      radial-gradient(900px 500px at 50% -8%, rgba(169,134,63,.08), transparent 60%),
+      linear-gradient(170deg,var(--bg),var(--bg2));
+    background-attachment:fixed; min-height:100vh; padding:0 0 70px}
+  .cjk{font-family:'Noto Serif TC',serif}
+  .wrap{max-width:980px; margin:0 auto; padding:30px 20px}
 
-/* ── TITLE ── */
-.title{text-align:center;margin-bottom:16px}
-.title h2{font-size:17px;font-weight:600;color:#222;letter-spacing:.3px}
-.title p{font-size:12px;color:#666;margin-top:3px}
-.title hr{border:none;border-top:1.5px solid #3a8;width:70%;margin:8px auto 0}
+  /* header */
+  header{text-align:center; margin-bottom:18px}
+  h1{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(30px,5vw,44px);
+    letter-spacing:.01em; color:var(--ink)}
+  h1 .v{font-family:'EB Garamond',serif; font-size:.4em; color:var(--ink-soft); vertical-align:middle; margin-left:8px; font-style:italic}
+  .subhead{color:var(--green-d); font-size:clamp(15px,2.4vw,18px); margin-top:4px; letter-spacing:.02em}
+  .subhead .cjk{color:var(--cinnabar)}
+  .rule{height:2px; background:linear-gradient(90deg,transparent,var(--green),transparent); margin:14px auto 22px; max-width:560px}
 
-/* ── CONTROLS ── */
-.ctrl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;align-items:center}
-.ctrl label{font-size:11px;font-weight:700;color:#444;letter-spacing:.5px}
-.ctrl select,.ctrl input{padding:5px 9px;font-size:12px;border:1px solid #bbb;
-  border-radius:4px;background:#fff;color:#111;font-family:monospace}
-.btn{padding:6px 16px;font-size:12px;font-weight:700;border:none;border-radius:4px;cursor:pointer;letter-spacing:.5px}
-.btn-ref{background:#1a6030;color:#fff}.btn-ref:hover{background:#218040}
+  /* toolbar */
+  .toolbar{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:20px}
+  .toolbar label{font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft)}
+  input.year{width:96px; padding:8px 10px; border:1px solid var(--line); border-radius:5px; background:var(--paper);
+    font-family:'EB Garamond',serif; font-size:16px; color:var(--ink)}
+  input.year:focus{outline:none; border-color:var(--green)}
+  .btn{font-family:'EB Garamond',serif; font-size:15px; padding:8px 16px; border-radius:5px; cursor:pointer;
+    border:1px solid transparent; transition:.2s; display:inline-flex; align-items:center; gap:7px}
+  .btn-draw{background:var(--green); color:#fff; border-color:var(--green-d)}
+  .btn-draw:hover{background:var(--green-d)}
+  .btn-soft{background:#f0e7d2; color:var(--gold-d); border-color:#e2d4b0}
+  .btn-soft:hover{background:#ecdfc2}
+  .btn-cyc{background:#dbe7ee; color:#2c5a78; border-color:#c4d7e2}
+  .btn-cyc:hover{background:#cfe0ea}
 
-/* ── OUTER CHART FRAME ── */
-.frame{display:inline-flex;flex-direction:column;background:#1d6b38;gap:0;border:0}
+  /* info band */
+  .band{display:grid; grid-template-columns:1fr auto auto; gap:14px; align-items:stretch;
+    background:var(--paper); border:1px solid var(--line); border-radius:9px; padding:16px 20px; margin-bottom:20px;
+    box-shadow:0 6px 20px -14px rgba(0,0,0,.4)}
+  .band .main .yr{font-size:13px; letter-spacing:.1em; color:var(--ink-soft)}
+  .band .main .big{font-family:'Cormorant Garamond',serif; font-size:clamp(24px,4vw,32px); color:var(--ink)}
+  .band .main .big .gz{color:var(--cinnabar)}
+  .band .main .sub{font-size:14px; color:var(--ink-soft); margin-top:2px}
+  .band .main .sub .dun{color:var(--green-d); font-weight:600}
+  .pill{border-left:1px solid var(--line-soft); padding-left:14px; min-width:118px}
+  .pill .k{font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-d)}
+  .pill .v{font-family:'Cormorant Garamond',serif; font-size:22px; margin-top:2px}
+  .pill .v small{font-size:13px; color:var(--ink-soft)}
+  .pill .vc{font-family:'Noto Serif TC',serif; color:var(--ink-soft); font-size:13px}
 
-/* ── TOP/BOTTOM OUTER ROW ── */
-.outer-row{display:flex;background:#1d6b38}
-.ocorner{width:44px;height:34px;display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:800;color:#fff;letter-spacing:.5px}
-.otop{flex:1;height:34px;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;color:#fff;gap:0}
-.odir{font-size:10px;letter-spacing:1px;opacity:.7;line-height:1}
-.obranch{font-size:17px;font-family:Georgia,serif;line-height:1.1}
-.otri{display:flex;flex-direction:column-reverse;gap:2px;margin-top:2px}
+  /* QMDJ BOARD */
+  .board-frame{background:var(--green); border-radius:10px; padding:30px 26px; position:relative;
+    box-shadow:0 14px 40px -22px rgba(0,0,0,.6); margin-bottom:8px}
+  .dir{position:absolute; color:#cfe6d8; font-size:12px; letter-spacing:.12em; font-weight:600}
+  .dir.cjk{font-size:15px; opacity:.92}
+  .board{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+  .pal{background:var(--paper); border-radius:7px; padding:11px 12px 12px; min-height:138px; position:relative;
+    display:grid; grid-template-rows:auto 1fr auto; animation:rise .45s both}
+  .pal.aus{background:var(--auspic)} .pal.ina{background:var(--inauspic)} .pal.neu{background:var(--neutral)}
+  .pal.fu{box-shadow:inset 0 0 0 2px var(--gold), 0 8px 22px -12px rgba(169,134,63,.7)}
+  .p-tag{position:absolute; top:6px; left:10px; font-size:9.5px; letter-spacing:.08em; color:var(--ink-soft); opacity:.8}
+  .p-tag .cjk{color:var(--green-d); opacity:.9}
+  /* row 1 */
+  .r1{display:flex; justify-content:space-between; align-items:flex-start; margin-top:9px}
+  .hstem{font-family:'Noto Serif TC',serif; font-size:24px; line-height:1; font-weight:600}
+  .deity{text-align:center; flex:1; padding:0 4px}
+  .deity .en{font-size:13px; font-weight:600; color:var(--ink)}
+  .deity .cn{font-family:'Noto Serif TC',serif; font-size:11px; color:var(--ink-soft)}
+  .star{font-style:italic; font-size:12.5px; color:var(--ink-soft); text-align:right; min-width:46px}
+  .star .cn{font-style:normal; font-family:'Noto Serif TC',serif; display:block; font-size:10px; opacity:.7}
+  /* row 2 door */
+  .door{text-align:center; align-self:center}
+  .door .en{font-family:'Cormorant Garamond',serif; font-size:21px; letter-spacing:.03em; color:var(--ink)}
+  .door .cn{font-family:'Noto Serif TC',serif; font-size:12px; color:var(--ink-soft)}
+  /* row 3 */
+  .r3{display:flex; justify-content:space-between; align-items:flex-end}
+  .estem{font-family:'Noto Serif TC',serif; font-size:24px; line-height:1; font-weight:600; display:flex; align-items:flex-end; gap:5px}
+  .ymark{font-size:13px; border:1.5px solid var(--cinnabar); color:var(--cinnabar); border-radius:3px; padding:0 3px; line-height:1.3}
+  .zb{width:25px;height:25px;border-radius:50%;border:1.5px solid var(--gold-d); color:var(--gold-d);
+    display:flex;align-items:center;justify-content:center; font-size:14px; font-family:'Cormorant Garamond',serif}
+  .wood{color:var(--wood)} .fire{color:var(--fire)} .earth{color:var(--earth)} .metal{color:var(--metal)} .water{color:var(--water)}
+  .center-pal .deity, .center-pal .door{opacity:.55}
+  .lodge{font-size:13px; opacity:.55; margin-left:3px; vertical-align:super; font-weight:400}
 
-/* ── MIDDLE ROW ── */
-.mid-row{display:flex;background:#1d6b38;gap:0}
+  .paninfo{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 4px}
+  .paninfo .pi{background:var(--paper); border:1px solid var(--line); border-radius:7px; padding:10px 14px; text-align:center}
+  .paninfo .pk{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-d)}
+  .paninfo .pk .cjk{letter-spacing:0}
+  .paninfo .pv{font-family:'Cormorant Garamond',serif; font-size:18px; color:var(--green-d); margin-top:2px}
+  .paninfo .pv .cjk{color:var(--cinnabar)}
 
-/* ── SIDE COLUMNS ── */
-.side{width:44px;display:flex;flex-direction:column;gap:2px;padding:2px 0}
-.scell{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  color:#fff;gap:2px}
-.sbranch{font-size:15px;font-family:Georgia,serif;line-height:1}
-.sdir{font-size:9px;letter-spacing:1px;opacity:.65}
-.stri{display:flex;flex-direction:column-reverse;gap:2px;margin-top:1px}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; font-size:12px; color:var(--ink-soft); margin:14px 0 6px}
+  .legend b{font-weight:600; color:var(--ink)}
+  .note-inferred{font-size:12px; color:var(--gold-d); text-align:center; margin-top:6px; font-style:italic}
 
-/* ── INNER 3×3 GRID ── */
-.grid{display:grid;grid-template-columns:repeat(3,160px);grid-template-rows:repeat(3,158px);
-  gap:2px;background:#000;margin:2px}
+  .footnote{margin-top:26px; text-align:center}
+  .footnote .btn{font-size:13px}
+  footer{margin-top:18px; text-align:center; color:var(--ink-soft); font-size:12px; line-height:1.6}
 
-/* ── MONTH BAR ── */
-#monthBar{max-width:590px;margin:10px auto 0;display:flex;overflow-x:auto;gap:4px;padding:4px 2px}
-.mc{flex:0 0 auto;padding:5px 6px;border-radius:5px;border:1.5px solid #ddd;cursor:pointer;
-  text-align:center;min-width:50px;transition:border-color .15s}
-.mc:hover{border-color:#999}
-.mc.mc-act{border-color:#e04040;background:#fff6f6}
-.ml{font-size:9px;color:#999;margin-bottom:2px}
-.mv{font-size:15px;font-weight:700;letter-spacing:1px}
-.month-hl{outline:2.5px solid #e04040;outline-offset:2px;border-radius:4px}
+  /* modal */
+  .modal{position:fixed; inset:0; background:rgba(40,34,26,.5); backdrop-filter:blur(2px); display:none;
+    align-items:flex-start; justify-content:center; z-index:50; padding:36px 16px; overflow:auto}
+  .modal.open{display:flex; animation:fade .2s}
+  .sheet{max-width:660px; width:100%; background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:30px 34px 34px; position:relative; box-shadow:0 30px 70px -30px rgba(0,0,0,.6); animation:rise .3s both}
+  .sheet h3{font-family:'Cormorant Garamond',serif; font-size:25px; color:var(--green-d); margin-bottom:3px}
+  .sheet h3 .cjk{color:var(--gold-d)}
+  .sheet .pin{font-style:italic; color:var(--ink-soft); margin-bottom:16px; font-size:15px}
+  .sheet p{margin:0 0 12px; font-size:15.5px}
+  .sheet p.s{font-size:14px; color:var(--ink-soft)}
+  .sheet .cjk{color:var(--gold-d)}
+  .sheet .eq{font-family:'Cormorant Garamond',serif; color:var(--green-d); font-size:16px}
+  .sheet .flag{border-left:3px solid var(--cinnabar); background:#f6e9e6; padding:10px 14px; border-radius:0 5px 5px 0; font-size:14px; margin:14px 0}
+  .x{position:absolute; top:12px; right:16px; border:none; background:none; font-size:24px; color:var(--ink-soft); cursor:pointer}
+  .x:hover{color:var(--cinnabar)}
 
-/* ── EVENT BANNER ── */
-#eventBanner{max-width:580px;margin:0 auto 6px;padding:0 4px}
-.ev{padding:6px 10px;border-left:3px solid #e8a000;margin:4px 0;font-size:13px;
-  background:#fffdf3;border-radius:0 4px 4px 0;color:#444;line-height:1.4}
-.ev b{color:#222}
+  /* cycle viewer (4860y) */
+  .luoshu{display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--line); border:1px solid var(--line); border-radius:7px; overflow:hidden; margin-top:6px}
+  .lp{background:var(--paper); padding:11px 12px; min-height:140px; position:relative}
+  .lp.cur{box-shadow:inset 0 0 0 2px var(--gold)}
+  .lp .nm{font-family:'Cormorant Garamond',serif; font-size:18px} .lp .nm .cjk{color:var(--gold-d); margin-right:4px}
+  .lp .nm .n{color:var(--green-d); font-style:italic}
+  .lp .od{position:absolute; top:9px; right:11px; font-size:10px; color:var(--ink-soft)}
+  .lp .dn{font-size:10px; letter-spacing:.1em; text-transform:uppercase; margin:5px 0 1px}
+  .lp .dn.y{color:var(--green)} .lp .dn.i{color:var(--cinnabar)} .lp .dn.c{color:var(--gold-d)}
+  .lp .sp{font-size:11px; color:var(--ink-soft); margin-bottom:8px}
+  .lp .jh{display:grid;grid-template-columns:repeat(3,1fr);font-family:'Noto Serif TC',serif;font-size:11px;color:var(--gold-d);text-align:center;opacity:.7}
+  .lp .jg{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+  .lp .jg span{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold-d);position:relative;padding:2px 0}
+  .lp .jg span.mk{color:var(--cinnabar);font-weight:600}
+  .lp .jg span.mk::after{content:"";position:absolute;inset:50% 50%;width:28px;height:28px;transform:translate(-50%,-50%);border:1.5px solid var(--cinnabar);border-radius:50%}
+  .cyc-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .cyc-nav .t{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--green-d)}
+  .cyc-nav .m{font-size:12px;color:var(--ink-soft)}
 
-/* ── TRIGRAM BARS ── */
-.tri{display:flex;flex-direction:column-reverse;gap:3px}
-.ts{height:3px;background:rgba(0,0,0,.55);border-radius:1px}
-.tb{height:3px;display:flex;gap:4px}
-.tb span{flex:1;height:100%;background:rgba(0,0,0,.55);border-radius:1px}
-
-/* ── PALACE CELL ── */
-.cell{background:#fff;display:flex;flex-direction:column;padding:5px 7px 5px;
-  position:relative;overflow:hidden;cursor:default}
-.cell.act{background:#f0f8ec;outline:3px solid #e8a000;outline-offset:-3px;z-index:1}
-.cell.ctr{background:#f5f5f5;align-items:center;justify-content:space-between}
-
-/* ── CELL ROWS ── */
-
-/* Row 1: Deity */
-.r1{font-size:13.5px;color:#333;text-align:center;
-  border-bottom:1px solid rgba(0,0,0,.15);padding-bottom:4px;margin-bottom:4px;
-  white-space:nowrap;letter-spacing:.2px;flex-shrink:0}
-.r1 .dch{font-family:Georgia,serif;font-size:9.5px;color:#777;margin-left:3px}
-
-/* Row 2: Heaven Stem + Star */
-.r2{display:flex;align-items:center;gap:6px;flex-shrink:0;min-height:32px}
-.hs{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;flex-shrink:0}
-.hs2{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;
-  flex-shrink:0;align-self:flex-end}
-.sn{font-size:13.5px;color:#555;margin-left:auto;text-align:right;
-  font-style:italic;line-height:1.25;align-self:flex-end;padding-bottom:2px}
-
-/* Row 3: Gate */
-.r3{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:2px 0}
-.gname{font-size:21px;font-weight:400;color:#111;letter-spacing:.4px;text-transform:uppercase}
-.gch{font-size:9.5px;color:#888;font-family:Georgia,serif;
-  letter-spacing:2px;margin-top:2px}
-
-/* Row 4: Earth stem + palace# + trigram */
-.r4{display:flex;align-items:center;gap:4px;border-top:1px solid rgba(0,0,0,.15);
-  padding-top:4px;flex-shrink:0}
-.es{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;flex-shrink:0}
-.es2{font-size:24px;font-family:Georgia,serif;font-weight:700;line-height:1;flex-shrink:0}
-.pn{font-size:12px;color:#aaa;font-family:monospace;margin-left:2px}
-.ptri{margin-left:auto;display:flex;flex-direction:column-reverse;gap:3px}
-.fstar{font-size:14px;font-weight:800;font-family:Georgia,serif;line-height:1;flex-shrink:0;
-  width:21px;height:21px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;border:1.6px solid currentColor;margin-left:auto}
-
-/* Center cell */
-.ctr-top{flex:1;display:flex;align-items:center;justify-content:center}
-.ctr-hs{font-size:28px;font-family:Georgia,serif;font-weight:700;line-height:1;text-align:center}
-.ctr-r4{display:flex;align-items:center;gap:4px;border-top:1px solid rgba(0,0,0,.15);
-  padding-top:4px;width:100%;flex-shrink:0}
-
-/* Stem colors — matching reference image */
-.fw{color:#4fc34f}  /* 甲乙 Wood: green */
-.ff{color:#f05050}  /* 丙丁 Fire: red */
-.fe{color:#f5a623}  /* 戊己 Earth: amber/gold */
-.fmy{color:#aaaaaa} /* 庚 Metal Yang: silver-gray (same as 辛) */
-.fmn{color:#aaaaaa} /* 辛 Metal Yin: silver-gray */
-.fwt{color:#5c99f0} /* 壬癸 Water: blue */
-
-/* Annual mode: star number colors */
-.fyang{color:#f5a623} /* Yang star: amber */
-.fyin{color:#5c99f0}  /* Yin star: blue */
-
-/* Info bar */
-.info{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
-#infoTop{margin-top:2px;margin-bottom:14px}
-.ic-hl{border:1.5px solid #e8a000;background:#fffdf3;box-shadow:0 1px 6px rgba(232,160,0,.3)}
-.ic-hl::after{color:#e8a000}
-.ic{background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 13px;text-align:center;
-  box-shadow:0 1px 3px rgba(0,0,0,.07);min-width:90px}
-.ic .lb{font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
-.ic .vl{font-size:14px;font-weight:700;color:#1a1a2e}
-.ic .sb{font-size:9px;color:#aaa;font-family:monospace;margin-top:2px}
-.yg{color:#b85000!important}.yn{color:#1a4a8a!important}
-
-.chart-wrap{display:flex;justify-content:center;overflow:hidden;margin:4px 0;width:100%}
-.chart-scaler{overflow:hidden}
-#chart{transform-origin:top left}
-
-/* Info modal */
-.ic{position:relative}
-.ic::after{content:"\24D8";position:absolute;top:3px;right:6px;font-size:10px;color:#bbb}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:18px}
-.modal-box{background:#fff;border-radius:12px;max-width:430px;width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 10px 50px rgba(0,0,0,.35)}
-.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 11px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff}
-.modal-head h3{font-size:16px;color:#1a6030;font-weight:700}
-.modal-x{background:none;border:none;font-size:27px;color:#999;cursor:pointer;line-height:1;padding:0 2px}
-.modal-body{padding:14px 18px 22px;font-size:13.5px;line-height:1.62;color:#333}
-.modal-body b{color:#1a6030}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media(max-width:620px){
+    .band{grid-template-columns:1fr} .pill{border-left:none;border-top:1px solid var(--line-soft);padding:8px 0 0}
+    .pal{min-height:124px;padding:9px} .hstem,.estem{font-size:20px} .board-frame{padding:26px 14px}
+    .dir{display:none}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<div class="title">
-  <h2>QMDJ Yearly chart <span style="font-size:11px;color:#aaa;font-weight:400">v33</span></h2>
-  <p id="subtitle">Yang Ju 7 · Lower Cycle · Day: Ding-Ren · Hour: Bing-Wu</p>
-  <hr>
-</div>
+  <header>
+    <h1>QMDJ Yearly Chart <span class="v">v33 · Strada A</span></h1>
+    <div class="subhead" id="subhead"></div>
+    <div class="rule"></div>
+  </header>
 
-<div class="ctrl">
-  <label>YEAR</label>
-  <input type="number" id="yr" value="2026" style="width:86px">
-  <button class="btn btn-ref" onclick="loadRef()">Draw Chart</button>
-  <button class="btn" onclick="showAllEvents()" style="margin-left:6px;background:#f5f0e0;color:#555">📜 Events</button>
-  <button class="btn" onclick="showGrandCycle()" style="margin-left:6px;background:#e0ecf5;color:#555">🗺️ 4860y</button>
-</div>
-
-<div class="info" id="infoTop"></div>
-<div id="eventBanner"></div>
-<div class="chart-wrap"><div class="chart-scaler" id="scaler"><div id="chart"></div></div></div>
-<div class="info" id="infoBottom"></div>
-<div id="monthBar"></div>
-
-<div id="modal" class="modal" onclick="if(event.target===this)closeInfo()">
-  <div class="modal-box">
-    <div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-x" onclick="closeInfo()">&times;</button></div>
-    <div id="modalBody" class="modal-body"></div>
+  <div class="toolbar">
+    <label for="yr">Year</label>
+    <input class="year" id="yr" value="2026">
+    <button class="btn btn-draw" id="draw">Draw Chart</button>
+    <button class="btn btn-soft" id="events">📖 Events</button>
+    <button class="btn btn-cyc" id="cyc">🧭 4860y</button>
   </div>
+
+  <!-- INFO BAND -->
+  <div class="band" id="band"></div>
+
+  <!-- QMDJ BOARD -->
+  <div class="board-frame">
+    <span class="dir" style="top:8px; left:30px">SE</span>
+    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-110px)">巳</span>
+    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-6px)">午</span>
+    <span class="dir" style="top:8px; left:50%; transform:translateX(2px); font-size:9px; margin-top:14px">S</span>
+    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(100px)">未</span>
+    <span class="dir" style="top:8px; right:30px">SW</span>
+    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(-60px)">辰</span>
+    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(-6px)">卯</span><span class="dir" style="top:50%;left:20px;transform:translateY(-6px);font-size:9px">E</span>
+    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(52px)">寅</span>
+    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(-60px)">申</span>
+    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(-6px)">酉</span><span class="dir" style="top:50%;right:20px;transform:translateY(-6px);font-size:9px">W</span>
+    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(52px)">戌</span>
+    <span class="dir" style="bottom:8px; left:30px">NE</span>
+    <span class="dir cjk" style="bottom:7px; left:50%; transform:translateX(-6px)">子</span>
+    <span class="dir" style="bottom:8px; right:30px">NW</span>
+    <div class="board" id="board"></div>
+  </div>
+
+  <!-- PAN INFO diagnostico -->
+  <div class="paninfo" id="paninfo"></div>
+
+  <div class="legend">
+    <span><b class="cjk wood">乙</b> Legno</span><span><b class="cjk fire">丙丁</b> Fuoco</span>
+    <span><b class="cjk earth">戊己</b> Terra</span><span><b class="cjk metal">庚辛</b> Metallo</span>
+    <span><b class="cjk water">壬癸</b> Acqua</span>
+    <span>&nbsp;|&nbsp; <b>天</b> stelo cielo · <b>地</b> stelo terra · <span style="opacity:.6">辛</span> 寄宮 (annidamento del centro)</span>
+  </div>
+  <div class="note-inferred" id="inferred">Tutte le etichette (CJK e inglese) validate su due riferimenti indipendenti: v28 (Yin Jú 3) e 1080-Ju Pan (Yang Jú 2). Il cerchio dorato in basso a destra è la stella annuale 紫白 (non il numero fisso del palazzo).</div>
+
+  <div class="footnote">
+    <button class="btn btn-soft" data-modal="m-anchor" style="background:#f1ead9;border-color:#e6dcc2">Sull'ancoraggio temporale del sistema</button>
+  </div>
+
+  <footer>
+    <span class="cjk" style="color:var(--green-d)">奇門遁甲</span> — Qi Men Dun Jia, carta annuale. Motore 转盘, validato su due carte di riferimento.
+  </footer>
 </div>
 
-</div>
+<!-- ===== MODAL: cycle viewer ===== -->
+<div class="modal" id="m-cyc"><div class="sheet" style="max-width:720px">
+  <button class="x" data-close>×</button>
+  <h3>Visore dei grandi cicli <span style="font-size:.6em;color:var(--ink-soft)">· 4860 anni</span></h3>
+  <div class="pin">Ossatura calendariale (Strada A) — contesto, non parte della carta QMDJ.</div>
+  <div class="cyc-nav">
+    <div><div class="t" id="cycT"></div><div class="m" id="cycM"></div></div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-soft" id="cPrev" style="padding:5px 12px">‹</button>
+      <button class="btn btn-soft" id="cNow" style="padding:5px 12px">Ora</button>
+      <button class="btn btn-soft" id="cNext" style="padding:5px 12px">›</button>
+    </div>
+  </div>
+  <div class="luoshu" id="luoshu"></div>
+  <p class="s" style="margin-top:14px">La sequenza dei palazzi cala 1→9→8→…→2; ogni palazzo dura 540 anni (9×60). Il palazzo evidenziato contiene l'anno della carta; il numero cerchiato è il Jú del sotto-ciclo di 60 anni in corso.</p>
+</div></div>
+
+<!-- ===== MODAL: anchor / Tai Yi background ===== -->
+<div class="modal" id="m-anchor"><div class="sheet">
+  <button class="x" data-close>×</button>
+  <h3>Ancoraggio temporale del sistema</h3>
+  <div class="pin">Perché le date dei grandi cicli sono affidabili anche molto indietro nel tempo</div>
+  <p>Questa è una <strong>carta Qi Men Dun Jia</strong> a tutti gli effetti: piastre, steli, nove stelle, otto porte e otto divinità sono calcolati con il metodo QMDJ standard. Nulla di Tai Yi entra nel <em>contenuto</em> della carta.</p>
+  <p>L'unico punto in cui interviene un riferimento esterno è la <strong>datazione dei cicli lunghi</strong> (il palazzo da 540 anni e i suoi sotto-cicli). Per ancorare questa scansione molto indietro nel tempo serve un'epoca-origine stabile; invece di estrapolare un conteggio sessagenario in stile Bazi — che su scale di migliaia di anni accumula deriva e ambiguità — il sistema adotta come origine un'epoca <strong>calendariale già fissata da una fonte autorevole</strong>: il <span class="cjk">上元</span> della tradizione <span class="cjk">太乙金鏡</span> (Specchio d'Oro, dinastia Tang), pari a <span class="eq">1.936.557 a.C.</span></p>
+  <p class="s">Questa epoca è scelta perché cade <em>esattamente</em> su un confine della griglia ciclica (a 4860×399 = 92.340×21 anni dal reset del 2584 d.C.): fornisce quindi un punto-zero coerente e verificabile, non una stima. In breve: il Tai Yi è usato come <strong>calendario di riferimento</strong> per datare i cicli, non come tecnica di lettura.</p>
+  <div class="flag"><strong>Da chiarire, per evitare equivoci:</strong> non si sta unendo Tai Yi e Qi Men. La carta resta interamente QMDJ; il <span class="cjk">金鏡</span> è solo il righello con cui si misurano gli anni. La coerenza metonica (ciclo di 19 anni) è una proprietà di fase del contatore calendariale, non un'affermazione astronomica.</p></div>
+</div></div>
+
+<!-- ===== MODAL: events (placeholder) ===== -->
+<div class="modal" id="m-events"><div class="sheet">
+  <button class="x" data-close>×</button>
+  <h3>Events</h3>
+  <div class="pin">Annotazioni per l'anno in carta</div>
+  <p class="s">Spazio riservato agli eventi/annotazioni dell'anno selezionato. Da collegare alla tua sorgente dati quando vorrai.</p>
+</div></div>
+
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────
-
-// Reference: Yang Jú 7 · Lower Cycle · Day Ding-Ren · Hour Bing-Wu
-// Exactly as shown in the reference image
-const REF = {
-  1:{ dy:'Harmonies', dc:'六合', h:'辛', hc:'fmn', h2:'',   h2c:'',   st:'Grass',     sc:'天蓬', gt:'Injury',   gc:'傷門' },
-  2:{ dy:'Commander', dc:'值符', h:'壬', hc:'fwt', h2:'丙', h2c:'ff', st:'Rice',      sc:'天芮', gt:'Open',     gc:'開門' },
-  3:{ dy:'Warrior',   dc:'玄武', h:'癸', hc:'fwt', h2:'',   h2c:'',   st:'Aggressor', sc:'天沖', gt:'View',     gc:'杜門' },
-  4:{ dy:'Earth',     dc:'九地', h:'丁', hc:'ff',  h2:'',   h2c:'',   st:'Assistant', sc:'天輔', gt:'Death',    gc:'死門' },
-  5:{ dy:'',          dc:'',    h:'丙', hc:'ff',  h2:'',   h2c:'',   st:'',          sc:'',     gt:'',         gc:''     },
-  6:{ dy:'Yin',       dc:'太陰', h:'乙', hc:'fw',  h2:'',   h2c:'',   st:'Heart',     sc:'天心', gt:'Birth',    gc:'生門' },
-  7:{ dy:'Snake',     dc:'螣蛇', h:'戊', hc:'fe',  h2:'',   h2c:'',   st:'Pillar',    sc:'天柱', gt:'Rest',     gc:'休門' },
-  8:{ dy:'Tiger',     dc:'白虎', h:'己', hc:'fe',  h2:'',   h2c:'',   st:'Official',  sc:'天任', gt:'Delusion', gc:'景門' },
-  9:{ dy:'Heaven',    dc:'九天', h:'庚', hc:'fmy', h2:'',   h2c:'',   st:'Hero',      sc:'天英', gt:'Shocking', gc:'驚門' },
-};
-
-// Trigrams [bottom, mid, top] 1=solid 0=broken
-const TRIGS = {
-  1:[1,0,1], 2:[0,0,0], 3:[1,0,0], 4:[0,0,1],
-  6:[1,1,1], 7:[0,1,1], 8:[1,1,0], 9:[1,0,1]
-};
-function triH(pn){
-  const t=TRIGS[pn];if(!t)return'';
-  return t.map(s=>s?'<div class="ts"></div>':'<div class="tb"><span></span><span></span></div>').join('');
+/* ================= CICLI (Strada A, origine 金鏡) ================= */
+const ORIGIN=-1936556, PALACE=540, GRAND=4860, SUPER=92340, JIAZI=60, YUAN=180;
+const SEQ=[1,9,8,7,6,5,4,3,2];
+const PNAME={1:'Kǎn',2:'Kūn',3:'Zhèn',4:'Xùn',5:'Centro',6:'Qián',7:'Duì',8:'Gèn',9:'Lí'};
+const PCJK ={1:'坎',2:'坤',3:'震',4:'巽',5:'中',6:'乾',7:'兌',8:'艮',9:'離'};
+const PDUN ={1:1,2:-1,3:1,4:1,5:0,6:-1,7:-1,8:1,9:-1};
+const LUOSHU=[4,9,2,3,5,7,8,1,6];
+const ORD={}; SEQ.forEach((p,i)=>ORD[p]=i);
+const mod9=v=>((v-1)%9+9)%9+1;
+function juGridCyc(p){const d=PDUN[p]===0?1:PDUN[p];const s=[];let v=p;for(let k=0;k<9;k++){s.push(mod9(v));v+=d;}const g=[[0,0,0],[0,0,0],[0,0,0]];for(let k=0;k<9;k++)g[Math.floor(k/3)][2-(k%3)]=s[k];return g;}
+function cyc(astro){
+  const since=astro-ORIGIN, gc=Math.floor(since/GRAND)+1, inGc=since-(gc-1)*GRAND;
+  const ord=Math.floor(inGc/PALACE), p=SEQ[ord], inPal=inGc-ord*PALACE;
+  const sub=Math.floor(inPal/JIAZI), yuan=Math.floor(inPal/YUAN), sup=Math.floor(since/SUPER)+1;
+  const g=juGridCyc(p), ju=g[Math.floor(sub/3)][2-(sub%3)];
+  const palStart=ORIGIN+(gc-1)*GRAND+ord*PALACE;
+  return {gc,sup,ord,p,sub,yuan,ju,dun:PDUN[p],palStart,subStart:palStart+sub*JIAZI};
 }
 
-// Palace info
-const PI={
-  1:{n:'Kǎn',d:'N',b:'子'},2:{n:'Kūn',d:'SW',b:'申'},3:{n:'Zhèn',d:'E',b:'卯'},
-  4:{n:'Xùn',d:'SE',b:'巳'},5:{n:'Ctr',d:'C',b:''},6:{n:'Qián',d:'NW',b:'亥'},
-  7:{n:'Duì',d:'W',b:'酉'},8:{n:'Gèn',d:'NE',b:'寅'},9:{n:'Lí',d:'S',b:'午'}
-};
+/* ================= MOTORE QMDJ (转盘, validato v28) ================= */
+const ring=[1,8,3,4,9,2,7,6]; const rIdx={}; ring.forEach((p,i)=>rIdx[p]=i);
+const STAR={1:'天蓬',2:'天芮',3:'天沖',4:'天輔',5:'天禽',6:'天心',7:'天柱',8:'天任',9:'天英'};
+const DOORC={1:'休',2:'死',3:'傷',4:'杜',6:'開',7:'驚',8:'生',9:'景'};
+const YI=['戊','己','庚','辛','壬','癸','丁','丙','乙'];
+const DEITYC=['值符','螣蛇','太陰','六合','白虎','玄武','九地','九天'];
+const STEMS=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const BR=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const DECYI=['戊','己','庚','辛','壬','癸'];
+// English — validate su DUE riferimenti (v28 Yin Jú3 + 1080-Ju Yang Jú2)
+const STAR_EN={'天蓬':'Grass','天沖':'Aggressor','天柱':'Pillar','天心':'Heart','天任':'Official','天禽':'Fowl','天芮':'Rice','天輔':'Assistant','天英':'Hero'};
+const DOOR_EN={'休':'Rest','死':'Death','驚':'Shocking','開':'Open','景':'View','生':'Birth','傷':'Injury','杜':'Delusion'};
+const DEITY_EN={'值符':'Commander','螣蛇':'Snake','太陰':'Yin','六合':'Harmonies','九天':'Heaven','白虎':'Tiger','玄武':'Warrior','九地':'Earth'};
+const AUS={'開':'aus','休':'aus','生':'aus','死':'ina','驚':'ina','傷':'ina','杜':'neu','景':'neu'};
+const PINYIN={1:'Kǎn',2:'Kūn',3:'Zhèn',4:'Xùn',6:'Qián',7:'Duì',8:'Gèn',9:'Lí',5:'Zhōng'};
+const PDIR={4:'SE',9:'S',2:'SW',3:'E',5:'·',7:'W',8:'NE',1:'N',6:'NW'};
+const PBR={4:'辰巳',9:'午',2:'未申',3:'卯',5:'',7:'酉',8:'丑寅',1:'子',6:'戌亥'};
+const STEM5={'甲':'wood','乙':'wood','丙':'fire','丁':'fire','戊':'earth','己':'earth','庚':'metal','辛':'metal','壬':'water','癸':'water'};
 
-// Annual system
-const GO=10155356,PSEQ=[1,9,8,7,6,5,4,3,2];
-// ── SIMULATION RULES ──
-// Rule 1: Yang Dun palaces (fixed per palace)
-const YANG_PALS=new Set([1,3,4,8]); // Kan,Zhen,Xun,Gen=Yang; Li,Dui,Qian,Kun=Yin
-// Rule 3: Center palace (5) special 270 Yin + 270 Yang table [offset, duration, juN, dun]
-const CTR5=[[0,60,5,'Yin'],[60,60,2,'Yin'],[120,60,8,'Yin'],[180,60,4,'Yin'],
-  [240,30,1,'Yin'],[270,30,1,'Yang'],[300,60,4,'Yang'],
-  [360,60,5,'Yang'],[420,60,8,'Yang'],[480,60,2,'Yang']];
-const SCH=['天蓬','天芮','天沖','天輔','天禽','天心','天柱','天任','天英'];
-const SEN=['Porch','Rice','Rush','Assist','Fowl','Heart','Pillar','Duty','Hero'];
-const GCH={1:'休門',2:'死門',3:'傷門',4:'杜門',6:'開門',7:'驚門',8:'生門',9:'景門'};
-const GEN={1:'Rest',2:'Death',3:'Injury',4:'View',6:'Open',7:'Shock',8:'Birth',9:'Scenery'};
-const YNAME=['Upper','Middle','Lower'];
-const GRID=[4,9,2,3,5,7,8,1,6];
-
-function y2a(y){return(y>0?y:y+1)+GO;}
-function a2y(a){const ast=a-GO;return ast>0?ast:ast-1;}
-function fmtY(y){var n=Math.abs(y),x=n>9999?n.toLocaleString('en-US'):String(n);return y>0?x+' AD':x+' BC';}
-function starY(P,j,yu){return((P-j+[0,3,6][yu]+90)%9)+1;}
-// Annual flying star (流年飛星): center star decreases 1/yr (2026=1), others fly FORWARD
-function centerStar(year){return ((2044-year)%9+9)%9+1;}
-function flyStar(P,C){return ((P+C-6)%9+9)%9+1;}
-// Sexagenary year pillar & decade (旬). Anchor: 1984 = Jia-Zi 甲子.
-const STEMS_EN=['Jia','Yi','Bing','Ding','Wu','Ji','Geng','Xin','Ren','Gui'];
-const STEMS_CH=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
-const BR_EN=['Zi','Chou','Yin','Mao','Chen','Si','Wu','Wei','Shen','You','Xu','Hai'];
-const BR_CH=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-const ZIBAI=['一白','二黑','三碧','四綠','五黃','六白','七赤','八白','九紫']; // 紫白九星
-function yearPillar(y){const o=(((y-1984)%60)+60)%60;return{s:o%10,b:o%12};}
-function yearDecade(y){const o=(((y-1984)%60)+60)%60,h=o-(o%10);
-  return{hs:0,hb:h%12,conceal:4+h/10};} // head always Jia; 六儀 concealment = 戊己庚辛壬癸
-
-function calcAnn(year){
-  const anni=y2a(year);if(anni<0)return null;
-  const gcN=Math.floor(anni/4860)+1,aGC=anni%4860;
-  const pi=Math.min(Math.floor(aGC/540),8),aPal=aGC-pi*540;
-  const pN=PSEQ[pi];
-  const ti=Math.min(Math.floor(aPal/180),2),aTer=aPal-ti*180;
-  const ji=Math.min(Math.floor(aTer/60),2);
-  let juN, dun, juOff, juDur;
-  if(pN===5){
-    // Rule 3: center palace — 270y Yin then 270y Yang, special jú table
-    const e=CTR5.find(([s,d])=>aPal>=s&&aPal<s+d)||CTR5[0];
-    juN=e[2]; dun=e[3]; juOff=e[0]; juDur=e[1];
-  } else {
-    // Rule 1: dun fixed per palace
-    const isY=YANG_PALS.has(pN); dun=isY?'Yang':'Yin';
-    // Rule 2: uniform jú (no skip-5): +3 within terna, +1 between (Yang); −3, −1 (Yin)
-    juN = isY ? ((pN-1+ti+ji*3)%9+9)%9+1 : ((pN-1-ti-ji*3)%9+9)%9+1;
-    juOff=ti*180+ji*60; juDur=60;
-  }
-  const base=(gcN-1)*4860, p=base+pi*540, t=p+ti*180, j=p+juOff;
-  const scN=Math.floor(anni/92340)+1;
-  return{year,gcN,pN,pi,ti,ji,juN,dun,
-    scN, scS:a2y((scN-1)*92340), scE:a2y(scN*92340),
-    gcS:a2y(base), gcE:a2y(base+4860),
-    palS:a2y(p),  palE:a2y(p+540),
-    terS:a2y(t),  terE:a2y(t+180),
-    juS:a2y(j),   juE:a2y(j+juDur)};
+function ganzhi(y){const n=((y-4)%60+60)%60; return {n,stem:STEMS[n%10],br:BR[n%12]};}
+function qmdj(J,yang,year){
+  const gz=ganzhi(year), dec=Math.floor(gz.n/10), xunYi=DECYI[dec], nPos=gz.n-dec*10+1;
+  const earth={}; for(let k=0;k<9;k++){const p=yang?((J-1+k)%9+9)%9+1:((J-1-k)%9+9)%9+1; earth[p]=YI[k];}
+  const palOf=s=>{for(const p in earth)if(earth[p]===s)return +p;};
+  let F=palOf(xunYi), Q=palOf(gz.stem)||5; const Qraw=Q; if(Q===5)Q=2; if(F===5)F=2;
+  const shift=rIdx[Q]-rIdx[F], hStem={},hStar={};
+  ring.forEach(X=>{const src=ring[((rIdx[X]-shift)%8+8)%8]; hStem[X]=earth[src]; hStar[X]=STAR[src];});
+  hStem[5]=earth[5]; hStar[5]='天禽';
+  const dShift=(yang?1:-1)*(nPos-1), door={};
+  ring.forEach(X=>{door[X]=DOORC[ring[((rIdx[X]-dShift)%8+8)%8]];});
+  const dir=yang?1:-1, deity={};
+  ring.forEach(X=>{deity[X]=DEITYC[(((rIdx[X]-rIdx[Q])*dir)%8+8)%8];});
+  const ctr=(((-(year-2026))%9)+9)%9+1, fly=[5,6,7,8,9,1,2,3,4], zb={};
+  fly.forEach((p,i)=>zb[p]=((ctr-1+i)%9)+1);
+  return {gz,xunYi,nPos,F,Q,Qraw,earth,hStem,hStar,door,deity,zb,ctr};
 }
+// 值使: porta nativa del palazzo 旬首 (F) e dove vola
+function zhiShiDoor(q){ return DOORC[q.F]; }
+function zhiShiPal(q){ const d=DOORC[q.F]; return ring.find(X=>q.door[X]===d); }
 
-// ── QMDJ TRANSPAN GENERATOR (轉盤) — verified vs 2025/2026/2027 reference charts ──
-// Stem → colour class
-const SCLS={'甲':'fw','乙':'fw','丙':'ff','丁':'ff','戊':'fe','己':'fe','庚':'fmy','辛':'fmn','壬':'fwt','癸':'fwt'};
-const GCOMP=[1,8,3,4,9,2,7,6];                 // stars & deities wheel (compass clockwise)
-const GSTEM_ORDER=['戊','己','庚','辛','壬','癸','丁','丙','乙']; // di-pan placement order
-const GSTAR_EN={1:'Grass',2:'Rice',3:'Aggressor',4:'Assistant',5:'',6:'Heart',7:'Pillar',8:'Official',9:'Hero'};
-const GSTAR_CH={1:'天蓬',2:'天芮',3:'天沖',4:'天輔',5:'天禽',6:'天心',7:'天柱',8:'天任',9:'天英'};
-const GGATE_EN={1:'Rest',2:'Death',3:'Injury',4:'View',6:'Open',7:'Shocking',8:'Birth',9:'Delusion'};
-const GGATE_CH={1:'休門',2:'死門',3:'傷門',4:'杜門',6:'開門',7:'驚門',8:'生門',9:'景門'};
-const GDEITY_EN=['Commander','Snake','Yin','Harmonies','Tiger','Warrior','Earth','Heaven'];
-const GDEITY_CH=['值符','螣蛇','太陰','六合','白虎','玄武','九地','九天'];
+/* ================= helpers ================= */
+const disp=y=> y>=1 ? y+' AD' : (1-y)+' BC';
+function parseYear(s){s=(s||'').trim().toLowerCase(); let bc=/bc|a\.?c\.?/.test(s)||s.startsWith('-'); let n=parseInt(s.replace(/[^0-9]/g,''),10); if(isNaN(n))return null; return bc?1-n:n;}
+const NOW=2026;
+let state={};
 
-function genDipan(ju,dun){               // earth plate: 戊己庚辛壬癸丁丙乙 from jú palace
-  const d={}; let p=ju;
-  for(const s of GSTEM_ORDER){ d[p]=s; p = dun==='Yang' ? (p%9+1) : ((p-2+9)%9+1); }
-  return d;
-}
-function genYearChart(year){
-  const a=calcAnn(year); if(!a) return null;
-  const ju=a.juN, dun=a.dun, dp=genDipan(ju,dun);
-  const o=(((year-1984)%60)+60)%60, hd=o-(o%10);
-  const xstem=['戊','己','庚','辛','壬','癸'][hd/10], k=o%10;          // 旬首 conceal stem + position
-  let xpal; for(const p in dp) if(dp[p]===xstem) xpal=+p;             // 旬首 palace
-  const ystem=STEMS_CH[yearPillar(year).s];
-  const eff=(ystem==='甲')?xstem:ystem;
-  let tgt; for(const p in dp) if(dp[p]===eff) tgt=+p;                 // 值符 target = year-stem on di-pan
-  if(tgt===5) tgt=2;                                                 // center lodges to Kun (中宫寄坤)
-  // heaven plate — rigid compass rotation of stars (each carries its di-pan stem)
-  const sS=GCOMP.indexOf(tgt)-GCOMP.indexOf(xpal), starAt={};
-  for(let i=0;i<8;i++) starAt[GCOMP[((i+sS)%8+8)%8]]=GCOMP[i];
-  starAt[5]=5;
-  // deities — from 值符 (at tgt), clockwise (Yang) / counter-clockwise (Yin)
-  const deity={}, iF=GCOMP.indexOf(tgt);
-  for(let dd=0;dd<8;dd++){ deity[ dun==='Yang'?GCOMP[(iF+dd)%8]:GCOMP[((iF-dd)%8+8)%8] ]=dd; }
-  // gates — 值使 advances numerically from 旬首 by k; rigid rotation; 杜↔景 swap
-  let g=xpal;
-  for(let s=0;s<k;s++) g = dun==='Yang' ? (g%9+1) : ((g-2+9)%9+1);
-  if(g===5) g=2;
-  const sG=GCOMP.indexOf(g)-GCOMP.indexOf(xpal), gate={};
-  for(let i=0;i<8;i++) gate[GCOMP[((i+sG)%8+8)%8]]=GCOMP[i];
-  for(const q in gate){ if(gate[q]===4) gate[q]=9; else if(gate[q]===9) gate[q]=4; }
-  // 丙-rider: center star (天禽) rides with 天芮 on heaven; sits at the lodge palace on earth
-  let star2pal; for(const q in starAt) if(starAt[q]===2) star2pal=+q;
-  const lodge=2, ctrStem=dp[5];   // 天禽 earth stem always displays at Kun (中宫寄坤)
-  const cells={};
-  for(let pn=1;pn<=9;pn++){
-    if(pn===5){ cells[5]={hh:dp[5],hhc:SCLS[dp[5]]||'',ee:dp[5],eec:SCLS[dp[5]]||'',
-      hh2:'',hh2c:'',ee2:'',ee2c:'',dy:'',dc:'',st:'',sc:'',gt:'',gc:''}; continue; }
-    const star=starAt[pn], hstem=dp[star], estem=dp[pn];
-    cells[pn]={
-      dy:GDEITY_EN[deity[pn]], dc:GDEITY_CH[deity[pn]],
-      hh:hstem, hhc:SCLS[hstem]||'',
-      hh2:(pn===star2pal?ctrStem:''), hh2c:(pn===star2pal?(SCLS[ctrStem]||''):''),
-      ee:estem, eec:SCLS[estem]||'',
-      ee2:(pn===lodge?ctrStem:''), ee2c:(pn===lodge?(SCLS[ctrStem]||''):''),
-      st:GSTAR_EN[star], sc:GSTAR_CH[star],
-      gt:GGATE_EN[gate[pn]], gc:GGATE_CH[gate[pn]]
-    };
-  }
-  cells._fu={pal:tgt, gate:g, ju, dun, xpal};   // metadata for pan-info boxes
-  return cells;
-}
+/* ================= render carta annuale ================= */
+function drawYear(astro){
+  const c=cyc(astro);
+  let yang = c.dun>0 ? true : c.dun<0 ? false : true;     // centro → default Yang
+  const J=c.ju;
+  const q=qmdj(J,yang,astro);
+  state={astro,c,yang,J,q};
+  const gz=q.gz, gzTxt=gz.stem+gz.br;
+  const yuanTxt=['Upper','Middle','Lower'][c.yuan]||'Lower';
+  const yuanCJK=['上元','中元','下元'][c.yuan]||'下元';
 
-// ── PALACE SHADING (year branch + empty palaces) ────────────────────────
-const BRANCH_PAL=[1,8,8,3,4,4,9,2,2,7,6,6]; // 子→1,丑→8,寅→8,卯→3,辰→4,巳→4,午→9,未→2,申→2,酉→7,戌→6,亥→6
-const PAL_ELEM={1:'water',2:'earth',3:'wood',4:'wood',5:'earth',6:'metal',7:'metal',8:'earth',9:'fire'};
-const ELEM_BG={water:'#edf2ff',fire:'#ffebeb',wood:'#edfced',
-  metal:'#eff0f3',earth:'#fff5e6'};
-const EMPTY_BG='#ebebeb'; // very light gray — distinct from metal and white
+  document.getElementById('subhead').innerHTML =
+    `${yang?'Yang':'Yin'} Jú ${J} · ${yuanTxt} Cycle · Year: ${gz.stem}-${gz.br} <span class="cjk">${gzTxt}</span>`;
 
-function computeEmptyPals(yr){
-  const a=calcAnn(yr);if(!a)return new Set();
-  const dec=yearDecade(yr), hb=dec.hb;
-  const e1=(hb-2+12)%12, e2=(hb-1+12)%12;
-  const res=new Set();
-  [e1,e2].forEach(brIdx=>{ res.add(BRANCH_PAL[brIdx]); });
-  return res;
-}
+  // band
+  document.getElementById('band').innerHTML=`
+    <div class="main">
+      <div class="yr">YEAR</div>
+      <div class="big">${disp(astro)} <span class="gz cjk">${gz.stem}-${gz.br} ${gzTxt}</span></div>
+      <div class="sub"><span class="dun">${yang?'Yang Dun 陽遁':'Yin Dun 陰遁'}</span> · 旬 <span class="cjk">甲${BR[Math.floor(gz.n/10)*10%12]}</span> · 遁干 <span class="cjk">${q.xunYi}</span></div>
+    </div>
+    <div class="pill"><div class="k">Annual Star</div><div class="v" style="color:var(--gold-d)">${q.ctr} · center</div><div class="vc">${['','一白','二黑','三碧','四綠','五黃','六白','七赤','八白','九紫'][q.ctr]}</div></div>
+    <div class="pill"><div class="k">Jú · 60Y</div><div class="v">#${J} · <span class="cjk" style="font-size:16px">${yang?'陽遁':'陰遁'}</span></div><div class="vc">${disp(c.subStart)} → ${disp(c.subStart+60)}</div></div>`;
 
-// ── CELL BUILDER ────────────────────────────────────────────────────────
-function cell(pn, d, isAct, fStar){
-  const isCtr=pn===5;
-  const cls='cell'+(isAct?' act':'')+(isCtr?' ctr':'');
-  const fsCls = fStar%2 ? 'fyang' : 'fyin';
-  const fsTag = `<span class="fstar ${fsCls}" title="Annual flying star ${fStar}">${fStar}</span>`;
-  // Palace shading: year-branch (element color) or empty (sand)
-  let bg='';
-  if(window._emptyPals&&window._emptyPals.has(pn)) bg=`background:${EMPTY_BG}`;
-  if(pn===window._yearBranchPal) bg=`background:${ELEM_BG[PAL_ELEM[pn]]}`;
-  const bgS=bg?` style="${bg}"`:'';
-
-  if(isCtr){
-    const ysSq='border:1.5px solid currentColor;padding:0 2px;border-radius:2px';
-    const ysH=d.hh===window._ys, ysE=d.ee===window._ys;
-    return `<div class="cell"${bgS} style="justify-content:space-between" title="Center Palace 5 · Fowl 天禽 · Annual star ${fStar}">
-      <div class="r2">
-        <span class="hs ${d.hhc}">${d.hh}</span>
-        <span class="sn"><b>Fowl</b></span>
+  // board
+  const b=document.getElementById('board'); b.innerHTML='';
+  const heavenLodge = ring.find(X => q.hStar[X]==='天芮');   // 天禽(cielo) 寄 con 天芮
+  LUOSHU.forEach((p,i)=>{
+    const isC=(p===5);
+    const dn=isC?'':q.door[p], aus=isC?'neu':AUS[dn];
+    const isFu=(p===q.Q && q.deity[p]==='值符');
+    const card=document.createElement('div');
+    card.className='pal '+aus+(isFu?' fu':'')+(isC?' center-pal':'');
+    card.style.animationDelay=(i*0.04)+'s';
+    const hs=q.hStem[p], es=q.earth[p];
+    // marker dello stelo-anno solo se annidato dal centro (Qraw=5), come nella v28
+    const yMark=(isFu && q.Qraw===5)?`<span class="ymark cjk">${q.gz.stem}</span>`:'';
+    // 寄宮: stelo del centro che si annida (terra→坤2, cielo→palazzo di 天芮)
+    const hLodge=(p===heavenLodge && !isC)?`<span class="lodge cjk ${STEM5[q.hStem[5]]||''}">${q.hStem[5]}</span>`:'';
+    const eLodge=(p===2)?`<span class="lodge cjk ${STEM5[q.earth[5]]||''}">${q.earth[5]}</span>`:'';
+    card.innerHTML=`
+      <div class="p-tag">${PDIR[p]} · <span class="cjk">${PCJK[p]}</span> ${PINYIN[p]}${PBR[p]?' · <span class="cjk">'+PBR[p]+'</span>':''}</div>
+      <div class="r1">
+        <div class="hstem cjk ${STEM5[hs]||''}">${hs||''}${hLodge}</div>
+        <div class="deity">${isC?'':`<div class="en">${DEITY_EN[q.deity[p]]}</div><div class="cn cjk">${q.deity[p]}</div>`}</div>
+        <div class="star">${STAR_EN[q.hStar[p]]}<span class="cn cjk">${q.hStar[p]}</span></div>
       </div>
-      <div class="r4">
-        <span class="es ${d.eec}">${d.ee}</span>
-        ${fsTag}
-      </div>
-    </div>`;
-  }
-
-  const cmdB=d.dy==='Commander';
-  const zhiB=pn===window._zhiShi;
-  const ys=window._ys||'';
-  const ysSq='border:1.5px solid currentColor;padding:0 2px;border-radius:2px';
-  return `<div class="${cls}"${bgS} title="${PI[pn].d} · ${PI[pn].n} · Annual star ${fStar}">
-    <div class="r1"${cmdB?' style="font-weight:800"':''}>${d.dy}<span class="dch">${d.dc}</span></div>
-    <div class="r2">
-      <span class="hs ${d.hhc}"${d.hh===ys?` style="${ysSq}"`:''}>${d.hh}</span>
-      ${d.hh2?`<span class="hs2 ${d.hh2c}"${d.hh2===ys?` style="${ysSq}"`:''}>${d.hh2}</span>`:''}
-      ${d.st?`<span class="sn">${d.st}${d.hh2?'<br><b>Fowl</b>':''}</span>`:''}
-    </div>
-    <div class="r3">
-      ${d.gt?`<div class="gname"${zhiB?' style="font-weight:800"':''}>${d.gt}</div><div class="gch">${d.gc}${zhiB?' <span style="font-size:9px;color:#e04040;font-weight:600">值使</span>':''}</div>`
-            :`<div style="opacity:.15;font-size:20px">—</div>`}
-    </div>
-    <div class="r4">
-      <span class="es ${d.eec}"${d.ee===ys?` style="${ysSq}"`:''}>${d.ee}</span>
-      ${d.ee2?`<span class="es2 ${d.ee2c}"${d.ee2===ys?` style="${ysSq}"`:''}>${d.ee2}</span>`:''}
-      ${fsTag}
-    </div>
-  </div>`;
-}
-
-// ── CHART BUILDER ────────────────────────────────────────────────────────
-function buildChart(cells, actP, sub){
-  document.getElementById('subtitle').textContent=sub;
-  const yr = parseInt(document.getElementById('yr').value) || 2026;
-  const C = centerStar(yr);
-
-  const ot=(br,dir)=>`<div class="otop">
-    ${dir?`<div class="odir">${dir}</div>`:''}
-    <div class="obranch">${br}</div>
-  </div>`;
-  const sc=(br,dir,pn)=>`<div class="scell">
-    ${dir?`<div class="sdir">${dir}</div>`:''}
-    <div class="sbranch">${br}</div>
-    <div class="stri">${triH(pn)}</div>
-  </div>`;
-
-  let h=`<div class="frame">`;
-
-  // TOP ROW
-  h+=`<div class="outer-row">
-    <div class="ocorner">SE</div>
-    ${ot('巳','')}${ot('午','S')}${ot('未','')}
-    <div class="ocorner">SW</div>
-  </div>`;
-
-  // MID ROW
-  h+=`<div class="mid-row">
-    <div class="side">${sc('辰','',4)}${sc('卯','E',3)}${sc('寅','',8)}</div>
-    <div class="grid">`;
-  GRID.forEach(pn=>{ h+=cell(pn, cells[pn], pn===actP, flyStar(pn, C)); });
-  h+=`</div>
-    <div class="side">${sc('申','',2)}${sc('酉','W',7)}${sc('戌','',6)}</div>
-  </div>`;
-
-  // BOTTOM ROW
-  h+=`<div class="outer-row">
-    <div class="ocorner">NE</div>
-    ${ot('丑','')}${ot('子','N')}${ot('亥','')}
-    <div class="ocorner">NW</div>
-  </div>`;
-
-  h+=`</div>`;
-  document.getElementById('chart').innerHTML=h;
-  scaleChartSoon();
-}
-
-// ── ANNUAL CHART ─────────────────────────────────────────────────────────
-function annCells(juN, yu, dun, actP){
-  const c={};
-  [1,2,3,4,5,6,7,8,9].forEach(pn=>{
-    const sN=starY(pn,juN,yu);
-    const isYang=sN%2===1;
-    if(pn===5){
-      c[5]={h:String(sN),hc:isYang?'fyang':'fyin',h2:'',h2c:'',st:'',sc:'',gt:'',gc:''};
-      return;
-    }
-    const gN=sN; // gate tied to star (annual system)
-    c[pn]={
-      dy:PI[pn].d+' · '+PI[pn].b, dc:'',
-      h:String(sN), hc:isYang?'fyang':'fyin',
-      h2:'', h2c:'',
-      st:SEN[sN-1], sc:SCH[sN-1],
-      gt:GEN[gN]||'', gc:GCH[gN]||''
-    };
+      <div class="door">${isC?'':`<div class="en">${DOOR_EN[dn].toUpperCase()}</div><div class="cn cjk">${dn}門</div>`}</div>
+      <div class="r3">
+        <div class="estem cjk ${STEM5[es]||''}">${es||''}${eLodge}${yMark}</div>
+        <div class="zb">${q.zb[p]}</div>
+      </div>`;
+    b.appendChild(card);
   });
-  return c;
+
+  // pannello diagnostico (符头 / 值符 / 值使) — come "Pan info" del riferimento
+  document.getElementById('paninfo').innerHTML=`
+    <div class="pi"><div class="pk">Fu Tu <span class="cjk">符头</span></div><div class="pv"><span class="cjk">${q.xunYi}</span> · at ${PINYIN[q.F]} (${q.F})</div></div>
+    <div class="pi"><div class="pk">Zhi Fu <span class="cjk">值符</span></div><div class="pv">${STAR_EN[q.hStar[q.Q]]} · at ${PINYIN[q.Q]} (${q.Q})</div></div>
+    <div class="pi"><div class="pk">Zhi Shi <span class="cjk">值使</span></div><div class="pv">${DOOR_EN[zhiShiDoor(q)]} · at ${PINYIN[zhiShiPal(q)]} (${zhiShiPal(q)})</div></div>`;
+
+  // sync cycle viewer
+  cycView=c.gc; renderCyc();
 }
 
-// ── ACTIONS ──────────────────────────────────────────────────────────────
-function loadRef(){
-  const yr = parseInt(document.getElementById('yr').value) || 2026;
-  const C = centerStar(yr);
-  const a = calcAnn(yr);
-  if(!a){
-    buildChart(genYearChart(2026), 0, '—');
-    document.getElementById('infoTop').innerHTML='';
-    document.getElementById('infoBottom').innerHTML =
-      `<div class="ic" onclick="showInfo('year')"><div class="lb">Year</div><div class="vl">${fmtY(yr)}</div><div class="sb">before Great Origin</div></div>`;
-    return;
-  }
-  const pil = yearPillar(yr), dec = yearDecade(yr);
-  const pilStr = STEMS_EN[pil.s]+'-'+BR_EN[pil.b], pilCh = STEMS_CH[pil.s]+BR_CH[pil.b];
-  const decStr = 'Jia-'+BR_EN[dec.hb]+' '+STEMS_EN[dec.conceal];
-  const decCh  = '甲'+BR_CH[dec.hb]+' · '+STEMS_CH[dec.conceal];
-  const yuanCh = ['上元','中元','下元'][a.ti];
-  // dynamic QMDJ grid for this year
-  const cells = genYearChart(yr);
-  window._ys = STEMS_CH[pil.s];            // year stem to highlight
-  window._zhiShi = cells ? cells._fu.gate : 0; // 値使 palace
-  window._yearBranchPal = BRANCH_PAL[pil.b]; // palace hosting year branch
-  window._emptyPals = computeEmptyPals(yr);   // empty (空亡) palaces
-  buildChart(cells, 0, `${a.dun} Jú ${a.juN} · ${YNAME[a.ti]} Cycle · Year: ${pilStr} ${pilCh}`);
-  showEventBanner(yr);
-  // ABOVE chart: four boxes — Year (with Dun), Decade, Annual Star, Jú
-  document.getElementById('infoTop').innerHTML=`
-    <div class="ic" onclick="showInfo('year')" style="padding:6px 12px">
-      <div style="font-size:16px;font-weight:700"><span style="font-size:10px;color:#999;text-transform:uppercase;font-weight:400;margin-right:8px">Year</span>${fmtY(yr)} <span class="${SCLS[STEMS_CH[pil.s]]}" style="margin-left:8px">${pilStr} ${pilCh}</span></div>
-      <div class="sb" style="font-size:12px;margin-top:2px">${a.dun} Dun · <span style="font-size:10px">旬 ${decCh}</span></div>
-    </div>
-    <div class="ic" onclick="showInfo('star')" style="padding:6px 8px"><div class="lb">Annual Star</div><div class="vl ${C%2?'yg':'yn'}" style="font-size:16px">${C} · center</div><div class="sb">${ZIBAI[C-1]}</div></div>
-    <div class="ic" onclick="showInfo('ju')" style="padding:6px 8px"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}" style="font-size:16px">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>`;
-  // BELOW chart: the nested cycles, largest → smallest in time
-  document.getElementById('infoBottom').innerHTML=`
-    <div class="ic" onclick="showInfo('origin')"><div class="lb">Great Origin</div><div class="vl">${fmtY(a2y(0))}</div><div class="sb">year 1 of all cycles</div></div>
-    <div class="ic" onclick="showInfo('metonic')"><div class="lb">Metonic · 92,340y</div><div class="vl">#${a.scN}</div><div class="sb">${fmtY(a.scS)} → ${fmtY(a.scE)}</div></div>
-    <div class="ic" onclick="showInfo('grand')"><div class="lb">Grand Cycle · 4860y</div><div class="vl">#${a.gcN}</div><div class="sb">${fmtY(a.gcS)} → ${fmtY(a.gcE)}</div></div>
-    <div class="ic" onclick="showInfo('palace')"><div class="lb">Palace · 540y</div><div class="vl">${PI[a.pN].n}</div><div class="sb">${fmtY(a.palS)} → ${fmtY(a.palE)}</div></div>
-    <div class="ic" onclick="showInfo('yuan')"><div class="lb">Yuan · 180y</div><div class="vl">${YNAME[a.ti]} ${yuanCh}</div><div class="sb">${fmtY(a.terS)} → ${fmtY(a.terE)}</div></div>
-    <div class="ic" onclick="showInfo('ju')"><div class="lb">Jú · 60y</div><div class="vl ${a.dun==='Yang'?'yg':'yn'}">#${a.juN} · ${a.dun==='Yang'?'陽':'陰'}遁</div><div class="sb">${fmtY(a.juS)} → ${fmtY(a.juE)}</div></div>
-    <div class="ic" onclick="showInfo('year')"><div class="lb">Year · 1y</div><div class="vl">${fmtY(yr)}</div><div class="sb">the present year</div></div>
-    <div class="ic ic-hl" onclick="showInfo('reset')"><div class="lb">Convergence ★</div><div class="vl yg">2044 AD</div><div class="sb">all cycles restart</div></div>`;
-  // Monthly pillars bar
-  window._monthStem=null;
-  const mps=monthlyPillars(yr);
-  document.getElementById('monthBar').innerHTML=mps.map((m,i)=>
-    `<div class="mc" onclick="highlightMonthStem('${m.sCh}',${m.b},this)"><div class="ml">M${i+1} · ${MONTH_NAMES[i]}</div><div class="mv ${m.cls}">${m.sCh}${m.bCh}</div></div>`
-  ).join('');
-}
-
-
-// ── INFO MODAL CONTENT ─────────────────────────────────────────────────────
-const EXPLAIN = {
-  year: { t:'Year', b:`The current year shown with its <b>sexagenary pillar</b> (Heavenly Stem + Earthly Branch). The 60-year cycle (六十甲子) pairs 10 stems with 12 branches and is anchored on <b>1984 = Jia-Zi (甲子)</b>. This 60-year span is the base unit from which every larger cycle in the system is built.` },
-
-  star: { t:'Annual Star', b:`The annual flying star began as <b>1 at the Great Origin</b> and counts <b>backward</b> by one each year (… 3, 2, 1, 9, 8 …). The year's star sits in the centre; the other eight fly forward along the Luoshu path. Because 9 stars run against the 60-year sexagenary cycle, the same star meets the same pillar again only every <b>180 years</b> (the lowest common multiple of 9 and 60) — it comes back to meet the Jia-Zi year once per 180 years, which is exactly why the 三元 180-year cycle exists. For 2026 the centre star is <b>1</b>.` },
-
-  origin: { t:'Great Origin · 上元', b:`The <b>Great Origin = 10,155,357 BC</b> is defined as <b>year 1 of every cycle</b> — jú, yuan, palace, grand cycle and annual star all begin counting here. The <b>19-year Metonic cycle</b> also starts at this point; combined with the 4860-year grand cycle it forms a <b>super-cycle of 92,340 years</b> (4860 × 19) that re-synchronises every level at once, and which likewise begins at the Great Origin. Every other figure in this panel is measured as years elapsed from this point.<br><br><b>Cultural source — Tai Yi (太乙, "Supreme Unity").</b> This remote epoch is not arbitrary: it belongs to the accumulated-years tradition of <b>太乙神數 (Tài Yǐ Shén Shù, "Supreme Unity Divine Calculation")</b>, one of the Three Styles (三式, sān shì) of Chinese cosmology. Its most revered work, the <b>太乙統宗寶鑒 (Tài Yǐ Tǒng Zōng Bǎo Jiàn, "Comprehensive Mirror of Supreme Unity")</b>, places the superior epoch (上元, shàng yuán, "upper origin") roughly <b>10,153,917 years before 1 BC</b> — the figure called <b>太乙積年 (Tài Yǐ jī nián, "Supreme Unity accumulated years")</b>. This Great Origin follows that same ~10.15-million-year 統宗 lineage. By its nature a remote epoch is a <b>traditional convention, not an observed date</b>: every 上元 figure in Chinese reckoning — the Three Styles and the state calendars (历法, lì fǎ) alike — is a back-computed reconstruction, chosen so that, projected far enough back, it lands on an ideal 甲子 (jiǎ zǐ) origin where every cycle begins together. The classical 統宗 figure is itself such a reconstruction, not an astronomical measurement. Our value belongs to that lineage and marks the single point from which all the nested cycles — 60, 180, 540, 4860 and the 19-year Metonic — issue as one.` },
-
-  metonic: { t:'Metonic Super-cycle · 92,340 years', b:`The <b>19-year Metonic cycle</b> reconciles the lunar months with the solar year (235 lunations ≈ 19 years); several Tai Yi (太乙, "Supreme Unity") sources require it to be held in step with the other cycles, so it is built into the system here. Because 19 shares no common factor with the 4860-year grand cycle, the two realign only after <b>19 × 4860 = 92,340 years</b> — the largest cycle in the system. This 92,340-year span is the <b>only</b> period over which all three anchoring conditions close together: the 180-year 三元 (sān yuán, "three eras" — when the Jia-Zi (甲子, the first of the 60 stem-branch pairs) year again meets annual star 1 at the centre), the 4860-year return of the palace to Kǎn, and the 19-year Metonic reset. We are in super-cycle <b>#110</b> (90,297 BC → 2044 AD); like every level it closes on <b>2044</b>. It begins, with all other cycles, at the Great Origin.` },
-
-  grand: { t:'Grand QMDJ Cycle of 4860 years', b:`60 years × 9 jú's = 540 years<br>540 years × 9 palaces = 4860 years<br><br>We are now in grand cycle <b>#2090</b>.` },
-
-  palace: { t:'Palace · 540 years', b:`Each grand cycle is divided into <b>9 palaces of 540 years</b> (540 = 9 jú = 3 yuan). The palaces are walked <b>retrograde, always starting from Kǎn (1)</b>: 1 → 9 → 8 → 7 → 6 → 5 → 4 → 3 → 2; then the next grand cycle restarts again from Kǎn. We are currently in palace <b>Kūn (2)</b>, running to 2044.` },
-
-  yuan: { t:'Yuan · 180 years · 三元', b:`Each palace holds three <b>180-year periods</b> — Upper (上元), Middle (中元), Lower (下元) — the classic <b>三元</b> of 三元九運. This is the same cycle used in <b>Xuan Kong Fei Xing</b> (Flying Stars) method. Starting year … 1684, 1864, <b>2044</b>, 2224 … We are in the <b>Lower yuan (下元)</b>, 1864 → 2044. It is also the span over which the annual star realigns with the Jia-Zi year.` },
-
-  reset: { t:'2044 AD · The Great Convergence', b:`<b>2044 AD</b> is a real boundary of the 三元 (sān yuán, "three eras") cycle, read directly from the living calendar: in Xuan Kong practice the 下元九運 (Lower Era, 9th Period) closes in 2043 and the 上元一運 (Upper Era, 1st Period) opens in 2044 — a Jia-Zi (甲子) year in which the annual star returns to <b>1 (一白, "One White")</b> at the centre, and the palace sequence returns to <b>Kǎn (1)</b>. <br><br>Such a 三元 boundary recurs every 180 years. A <b>full</b> convergence — where the 540-year palace, the 4860-year grand cycle and the 92,340-year Metonic super-cycle all begin together at that same boundary — is far rarer: it can occur only once every <b>92,340 years</b>, the least common multiple of the grand cycle and the 19-year Metonic cycle. 2044 is the full convergence of the present age; the previous fell around <b>90,297 BC</b> and the next falls in <b>94,384 AD</b> (2044 + 92,340). This is the system's observable footing in the present, complementing the remote, traditional Great Origin.` },
-
-  ju: { t:'Jú · 60 years', b: function(){
-    const yr=parseInt(document.getElementById('yr').value)||2026, a=calcAnn(yr);
-    if(!a) return 'N/A';
-    return `The smallest cycle = one <b>60-year jú</b> (a full sexagenary round). Within a palace the jú number advances or retreats <b>uniformly</b>: step of <b>+3</b> inside a yuan and <b>+1</b> between yuan for Yang palaces; <b>−3</b> and <b>−1</b> for Yin palaces. Each palace's polarity is <b>fixed</b> — <b>Yang Dun (陽遁)</b> for Kan (1), Zhen (3), Xun (4), Gen (8); <b>Yin Dun (陰遁)</b> for Li (9), Dui (7), Qian (6), Kun (2). The centre palace (5) follows a special split: 270 years Yin Dun then 270 years Yang Dun, with jú 1 straddling the boundary. We are in jú <b>#${a.juN}, ${a.dun}</b>, ${fmtY(a.juS)} → ${fmtY(a.juE)}.`;}
-  },
-};
-
-function showInfo(key){
-  const e = EXPLAIN[key];
-  if(!e) return;
-  document.getElementById('modalTitle').textContent = e.t;
-  document.getElementById('modalBody').innerHTML = typeof e.b === 'function' ? e.b() : e.b;
-  document.getElementById('modal').style.display = 'flex';
-}
-function closeInfo(){ document.getElementById('modal').style.display = 'none'; }
-
-// ── MONTHLY PILLARS (五虎遁) ────────────────────────────────────────────
-const MONTH_NAMES=['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
-const MONTH_BR=[2,3,4,5,6,7,8,9,10,11,0,1]; // 寅卯辰巳午未申酉戌亥子丑
-function monthlyPillars(yr){
-  const ys=yearPillar(yr).s;
-  const start=[2,4,6,8,0,2,4,6,8,0][ys]; // 五虎遁: year甲→丙, 乙→戊, 丙→庚...
-  const ms=[];
-  for(let i=0;i<12;i++){
-    const si=(start+i)%10, bi=MONTH_BR[i];
-    ms.push({s:si,b:bi,sCh:STEMS_CH[si],bCh:BR_CH[bi],cls:SCLS[STEMS_CH[si]]||''});
-  }
-  return ms;
-}
-const JIA_CONCEAL={0:'戊',10:'己',8:'庚',6:'辛',4:'壬',2:'癸'}; // 甲子→戊,甲戌→己,甲申→庚,甲午→辛,甲辰→壬,甲寅→癸
-window._monthStem=null;
-function highlightMonthStem(stemCh,brIdx,el){
-  document.querySelectorAll('.month-hl').forEach(e=>e.classList.remove('month-hl'));
-  document.querySelectorAll('.mc-act').forEach(e=>e.classList.remove('mc-act'));
-  // 甲 is hidden behind its Fu Tou
-  if(stemCh==='甲') stemCh=JIA_CONCEAL[brIdx]||stemCh;
-  if(!stemCh||window._monthStem===stemCh){window._monthStem=null;return;}
-  window._monthStem=stemCh;
-  if(el)el.classList.add('mc-act');
-  document.querySelectorAll('#chart .hs, #chart .es, #chart .hs2, #chart .es2').forEach(sp=>{
-    if(sp.textContent.trim()===stemCh) sp.classList.add('month-hl');
+/* ================= cycle viewer ================= */
+let cycView;
+function renderCyc(){
+  const gcStart=ORIGIN+(cycView-1)*GRAND, gcEnd=gcStart+GRAND;
+  const sup=Math.floor((gcStart-ORIGIN)/SUPER)+1;
+  document.getElementById('cycT').textContent='Gran Ciclo #'+cycView;
+  document.getElementById('cycM').textContent=disp(gcStart)+' → '+disp(gcEnd)+' · super-ciclo #'+sup;
+  const mk=state.c;
+  const box=document.getElementById('luoshu'); box.innerHTML='';
+  LUOSHU.forEach(p=>{
+    const ord=ORD[p], pStart=gcStart+ord*PALACE, g=juGridCyc(p);
+    const isCur=(mk.gc===cycView && mk.p===p);
+    const dcls=PDUN[p]>0?'y':PDUN[p]<0?'i':'c';
+    let cells='';
+    for(let r=0;r<3;r++)for(let c2=0;c2<3;c2++){const k=r*3+(2-c2); const mkc=(isCur&&k===mk.sub)?' mk':''; cells+=`<span class="${mkc}">${g[r][c2]}</span>`;}
+    const card=document.createElement('div'); card.className='lp'+(isCur?' cur':'');
+    card.innerHTML=`<div class="od">${ord+1}°</div>
+      <div class="nm"><span class="cjk">${PCJK[p]}</span>${PNAME[p]} <span class="n">(${p})</span></div>
+      <div class="dn ${dcls}">${PDUN[p]>0?'Yang Dun':PDUN[p]<0?'Yin Dun':'Yin↔Yang'}</div>
+      <div class="sp">${disp(pStart)} → ${disp(pStart+PALACE)}</div>
+      <div class="jh"><span>下</span><span>中</span><span>上</span></div>
+      <div class="jg">${cells}</div>`;
+    box.appendChild(card);
   });
 }
 
-// ── HISTORICAL EVENTS DATABASE ──────────────────────────────────────────
-const EVENTS = [
-  // Antiquity
-  [-2560,"Great Pyramid of Giza completed (approximate)"],
-  [-1600,"Minoan eruption of Thera/Santorini — devastates Aegean"],
-  [-1177,"Bronze Age Collapse — Sea Peoples, fall of multiple civilisations"],
-  [-776,"First Olympic Games (traditional date)"],
-  [-753,"Founding of Rome (traditional date)"],
-  [-551,"Birth of Confucius"],
-  [-509,"Roman Republic established"],
-  [-490,"Battle of Marathon — Greeks defeat Persians"],
-  [-480,"Battles of Thermopylae and Salamis"],
-  [-431,"Start of Peloponnesian War"],
-  [-331,"Alexander the Great defeats Persia at Gaugamela"],
-  [-221,"Qin Shi Huang unifies China — Qin Dynasty"],
-  [-218,"Hannibal crosses the Alps — Second Punic War"],
-  [-146,"Destruction of Carthage; Roman conquest of Greece"],
-  [-44,"Assassination of Julius Caesar"],
-  [-31,"Battle of Actium — Octavian defeats Antony & Cleopatra"],
-  [-27,"Roman Republic becomes Roman Empire (Augustus)"],
-  // Classical era
-  [9,"Battle of Teutoburg Forest — Rome loses 3 legions in Germania"],
-  [33,"Crucifixion of Jesus (approximate)"],
-  [70,"Destruction of the Second Temple in Jerusalem"],
-  [79,"Eruption of Mount Vesuvius — Pompeii & Herculaneum destroyed"],
-  [185,"⭐ SN 185 — earliest confirmed supernova (Chinese astronomers, 8 months visible)"],
-  [280,"Jin Dynasty reunifies China after Three Kingdoms"],
-  [313,"Edict of Milan — Christianity legalised in Roman Empire"],
-  [365,"Crete earthquake & tsunami (M~8.0) — eastern Mediterranean devastated"],
-  [393,"⭐ SN 393 — probable supernova in Scorpius (Chinese records, 8 months)"],
-  [395,"Permanent division of Roman Empire into East & West"],
-  [410,"Sack of Rome by Visigoths"],
-  [476,"Fall of the Western Roman Empire"],
-  [536,"Volcanic winter — global crop failure, famine, plague ('worst year to be alive')"],
-  // Islamic & Early Medieval
-  [622,"Hijra — Islamic calendar begins"],
-  [632,"Death of Prophet Muhammad"],
-  [793,"Viking raid on Lindisfarne — Viking Age begins"],
-  [800,"Charlemagne crowned Holy Roman Emperor"],
-  [869,"Jōgan earthquake & tsunami (M~8.6, Japan — Sanriku coast)"],
-  [960,"Song Dynasty founded in China"],
-  // High Medieval
-  [1006,"⭐ SN 1006 — brightest stellar event in recorded history (mag −7.5, in Lupus)"],
-  [1054,"⭐ SN 1054 — supernova creates Crab Nebula (Chinese, Arab, Japanese records)"],
-  [1066,"Norman Conquest of England — Battle of Hastings"],
-  [1181,"⭐ SN 1181 — supernova in Cassiopeia (visible 185 days)"],
-  [1187,"Saladin captures Jerusalem"],
-  [1206,"Genghis Khan founds the Mongol Empire"],
-  [1215,"Magna Carta signed in England"],
-  [1258,"Mongols sack Baghdad — end of Abbasid Caliphate"],
-  [1279,"Mongol conquest of Song Dynasty — Yuan Dynasty"],
-  // Late Medieval
-  [1347,"Black Death arrives in Europe (~75–200 million dead over following years)"],
-  [1368,"Ming Dynasty founded in China"],
-  [1431,"Joan of Arc executed"],
-  [1453,"Fall of Constantinople — end of Byzantine Empire"],
-  // Early Modern
-  [1492,"Columbus reaches the Americas"],
-  [1517,"Martin Luther's 95 Theses — Protestant Reformation"],
-  [1543,"Copernicus publishes heliocentric model"],
-  [1556,"Shaanxi earthquake (M~8.0, ~830,000 dead — deadliest earthquake ever)"],
-  [1572,"⭐ Tycho's Supernova (SN 1572) in Cassiopeia — observed by Tycho Brahe"],
-  [1588,"Spanish Armada defeated"],
-  [1604,"⭐ Kepler's Supernova (SN 1604) in Ophiuchus — last observed Milky Way SN"],
-  [1610,"Galileo publishes telescopic observations (Jupiter moons, lunar craters)"],
-  [1618,"Start of Thirty Years' War"],
-  [1644,"Fall of Ming Dynasty — Qing Dynasty begins"],
-  [1666,"Great Fire of London"],
-  [1707,"Mount Fuji last eruption (Hōei eruption, Japan)"],
-  // Enlightenment & Revolutions
-  [1755,"Great Lisbon earthquake & tsunami (M8.5–9.0, ~60,000 dead)"],
-  [1776,"US Declaration of Independence"],
-  [1783,"Treaty of Paris — American independence recognised"],
-  [1789,"French Revolution begins — storming of the Bastille"],
-  [1804,"Napoleon crowned Emperor of France"],
-  [1812,"Napoleon's invasion of Russia"],
-  [1815,"Battle of Waterloo; Mount Tambora eruption → 'Year Without a Summer' (1816)"],
-  // 19th century
-  [1848,"European revolutions across multiple nations"],
-  [1854,"Ansei-Tōkai earthquake & tsunami (M8.4, Japan)"],
-  [1859,"Carrington Event — most intense solar storm recorded"],
-  [1861,"Start of US Civil War"],
-  [1865,"End of US Civil War; assassination of Abraham Lincoln"],
-  [1868,"Meiji Restoration in Japan"],
-  [1871,"German unification under Bismarck"],
-  [1883,"Krakatoa eruption (36,000+ dead, global cooling, vivid sunsets for years)"],
-  // Early 20th century
-  [1902,"Mount Pelée eruption (Martinique, ~29,000 dead)"],
-  [1906,"San Francisco earthquake (M7.9, ~3,000 dead)"],
-  [1908,"Tunguska event — airburst over Siberia (~12 Mt, 2,150 km² flattened)"],
-  [1912,"Sinking of the Titanic"],
-  [1914,"Start of World War I"],
-  [1917,"Russian Revolution — Bolsheviks seize power"],
-  [1918,"End of World War I; Spanish Flu pandemic begins (~50 million dead)"],
-  [1923,"Great Kantō earthquake (M7.9, ~142,000 dead, Japan)"],
-  [1929,"Wall Street Crash — Great Depression begins"],
-  // WWII era
-  [1939,"Start of World War II"],
-  [1941,"Attack on Pearl Harbor — US enters WWII"],
-  [1944,"D-Day — Allied invasion of Normandy"],
-  [1945,"End of WWII; atomic bombs on Hiroshima & Nagasaki"],
-  // Cold War
-  [1947,"Indian independence and partition"],
-  [1948,"State of Israel founded"],
-  [1949,"People's Republic of China founded"],
-  [1957,"Sputnik launched — Space Age begins"],
-  [1961,"Berlin Wall erected; Yuri Gagarin — first human in space"],
-  [1962,"Cuban Missile Crisis — closest to nuclear war"],
-  [1963,"Assassination of President Kennedy"],
-  [1969,"First humans on the Moon (Apollo 11)"],
-  [1976,"Tangshan earthquake (M7.5, ~242,000 dead, China)"],
-  [1986,"Chernobyl nuclear disaster (Ukraine)"],
-  [1989,"Fall of the Berlin Wall; Tiananmen Square protests"],
-  [1991,"Dissolution of the Soviet Union"],
-  // 21st century
-  [2001,"September 11 attacks — World Trade Center & Pentagon"],
-  [2004,"Indian Ocean tsunami (M9.1, ~227,000 dead)"],
-  [2005,"Hurricane Katrina (US Gulf Coast, ~1,800 dead)"],
-  [2008,"Sichuan earthquake (M7.9, ~87,000 dead); Global financial crisis"],
-  [2010,"Haiti earthquake (M7.0, ~316,000 dead)"],
-  [2011,"Tōhoku earthquake & tsunami (M9.1, Japan); Fukushima nuclear disaster"],
-  [2013,"Chelyabinsk meteor — largest airburst since Tunguska (~500 kt)"],
-  [2020,"COVID-19 pandemic begins — global lockdowns"],
-  // ── Prehistoric ──
-  [-398097,"Earliest intentional use of fire (approximate) — Homo erectus"],
-  // ── Additional: Financial crises ──
-  [1637,"Tulip Mania crash — first recorded speculative bubble (Netherlands)"],
-  [1720,"South Sea Bubble — financial crisis devastates England"],
-  [1873,"Panic of 1873 — Long Depression begins (~6 years of global recession)"],
-  [1907,"Panic of 1907 — banking crisis; triggers creation of Federal Reserve"],
-  [1973,"Oil crisis — OPEC embargo triggers global recession and energy shock"],
-  [1987,"Black Monday — largest single-day stock market crash in history (−22%)"],
-  [1997,"Asian financial crisis — currencies collapse across East Asia"],
-  [2000,"Dot-com bubble bursts — NASDAQ loses 78% of value by 2002"],
-  // ── Additional: Decisive battles ──
-  [-216,"Battle of Cannae — Hannibal's greatest tactical victory over Rome"],
-  [-202,"Battle of Zama — Scipio defeats Hannibal; end of Second Punic War"],
-  [-48,"Battle of Pharsalus — Caesar defeats Pompey; Roman Republic collapses"],
-  [636,"Battle of Yarmouk — Arab conquest of Byzantine Levant"],
-  [732,"Battle of Tours — Charles Martel halts Muslim advance into Western Europe"],
-  [1241,"Battle of Mohi — Mongol invasion reaches Hungary, devastates Europe"],
-  [1571,"Battle of Lepanto — Holy League defeats Ottoman fleet; Ottoman naval expansion halted"],
-  [1683,"Battle of Vienna — Ottoman siege repelled; turning point for Central Europe"],
-  [1757,"Battle of Plassey — British East India Company conquers Bengal"],
-  [1805,"Battle of Trafalgar — Nelson defeats Franco-Spanish fleet; Austerlitz — Napoleon's greatest victory"],
-  [1863,"Battle of Gettysburg — turning point of US Civil War"],
-  [1870,"Battle of Sedan — Franco-Prussian War; fall of French Second Empire"],
-  [1905,"Battle of Tsushima — Japan defeats Russian fleet; first Asian victory over European power"],
-  [1916,"Battles of Verdun and the Somme — bloodiest year of WWI (~2 million casualties)"],
-  [1940,"Battle of Britain — RAF repels Luftwaffe air campaign"],
-  [1942,"Battles of Midway, El Alamein, Stalingrad begin — three turning points of WWII"],
-  [1943,"Battle of Stalingrad ends — decisive Soviet victory; Battle of Kursk — largest tank battle"],
-];
+/* ================= events ================= */
+document.getElementById('draw').onclick=()=>{const y=parseYear(document.getElementById('yr').value); if(y!==null)drawYear(y);};
+document.getElementById('yr').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('draw').click();});
+document.getElementById('events').onclick=()=>document.getElementById('m-events').classList.add('open');
+document.getElementById('cyc').onclick=()=>{renderCyc();document.getElementById('m-cyc').classList.add('open');};
+document.getElementById('cPrev').onclick=()=>{cycView--;renderCyc();};
+document.getElementById('cNext').onclick=()=>{cycView++;renderCyc();};
+document.getElementById('cNow').onclick =()=>{cycView=state.c.gc;renderCyc();};
+document.querySelectorAll('[data-modal]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.modal).classList.add('open'));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m||e.target.hasAttribute('data-close'))m.classList.remove('open');}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));});
 
-function showEventBanner(yr){
-  const b=document.getElementById('eventBanner');
-  if(!b)return;
-  const m=EVENTS.filter(([y])=>y===yr);
-  b.innerHTML=m.map(([y,d])=>`<div class="ev"><b>${fmtY(y)}:</b> ${d}</div>`).join('');
-}
-
-const EFILTERS = [
-  ['All', null],
-  ['⚔️ Battles', /battle|cannae|zama|pharsalus|lepanto|yarmouk|tours|mohi|vienna 1683|plassey|trafalgar|austerlitz|gettysburg|sedan|tsushima|verdun|somme|battle of britain|midway|alamein|stalingrad|kursk|hastings|thermopylae|salamis|gaugamela|actium|d-day|normandy|marathon|teutoburg|pearl harbor|armada|hannibal/i],
-  ['💰 Financial', /crash|panic|bubble|depression|financial|crisis|mania|monday|oil crisis|dot-com|nasdaq/i],
-  ['🌍 Disasters', /earthquake|eruption|tsunami|volcanic|hurricane|tambora|krakatoa|vesuvius|pelée|fuji|thera|santorini|lisbon|tangshan|sichuan|haiti|tōhoku|fukushima|kantō|fire of london|sanriku|crete earthquake|titanic|crop failure|famine|chernobyl|nuclear disaster/i],
-  ['☄️ Cosmic', /supernova|sn \d|sn 1|tunguska|chelyabinsk|carrington|meteor|airburst|solar storm/i],
-  ['🔬 Science', /moon|sputnik|gagarin|copernicus|galileo|heliocentric|space age|apollo|telescope/i],
-  ['🦠 Pandemic', /plague|flu|pandemic|black death|covid|spanish flu/i],
-  ['👑 Political', /empire|dynasty|founded|unification|independence|revolution|republic|fall of|sack |collapse|dissolution|partition|conquest|crowned|emperor|magna carta|declaration|edict|reformation|luther|columbus|americas|assassination|berlin wall|soviet|ussr|israel|ottoman|byzantine|constantinople|rome|ming|qing|yuan|song|qin|napoleon|bismarck|meiji|viking|charlemagne|hijra|muhammad|war begins|war ends|start of.*war|end of.*war|civil war|world war|september 11|kennedy|lincoln|caesar|cleopatra|olympic|temple|jerusalem|christianity|islam|pyramid|confucius|crucifixion|jesus|joan|atomic|hiroshima|nagasaki|wwii/i],
-  ['🔄 Boundary', 'CYCLE'],
-];
-
-function cycleBadge(y){
-  const a=calcAnn(y);if(!a)return '';const b=[],d=2;
-  const chk=(s,e,l,c)=>{if(Math.abs(y-s)<=d||Math.abs(y-e)<=d)b.push(`<span style="color:${c};font-size:9px;font-weight:700;border:1px solid ${c};border-radius:3px;padding:0 3px" title="Within ${d}y of ${l} boundary">${l}</span>`);};
-  chk(a.gcS,a.gcE,'4860y','#8e44ad');chk(a.palS,a.palE,'540y','#e04040');
-  chk(a.terS,a.terE,'180y','#e8a000');chk(a.juS,a.juE,'60y','#999');
-  return b.length?' '+b.join(' '):'';
-}
-window._evReverse=false; window._evFilter=0;
-
-function showAllEvents(filterIdx,toggleSort){
-  if(filterIdx===undefined) filterIdx=window._evFilter;
-  if(toggleSort) window._evReverse=!window._evReverse;
-  window._evFilter=filterIdx;
-  const [label,regex]=EFILTERS[filterIdx]||EFILTERS[0];
-  const sorted=[...EVENTS].sort((a,b)=>window._evReverse?b[0]-a[0]:a[0]-b[0]);
-  const filtered=regex==='CYCLE'?sorted.filter(([y])=>cycleBadge(y)!==''):regex?sorted.filter(([y,d])=>regex.test(d)):sorted;
-  const yr=parseInt(document.getElementById('yr').value)||2026;
-  let html='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
-  EFILTERS.forEach(([lbl],i)=>{
-    const sel=i===filterIdx?'background:#e8a000;color:#fff':'background:#f0ede4;color:#555';
-    html+=`<button onclick="showAllEvents(${i})" style="border:none;padding:5px 10px;border-radius:12px;font-size:12px;cursor:pointer;${sel}">${lbl}</button>`;
-  });
-  html+=`<button onclick="showAllEvents(undefined,true)" style="border:none;padding:5px 10px;border-radius:12px;font-size:12px;cursor:pointer;background:#e0ecf5;color:#555">⇅ ${window._evReverse?'Oldest first':'Recent first'}</button>`;
-  html+='</div>';
-  html+='<div style="max-height:65vh;overflow-y:auto;font-size:14px;line-height:1.7">';
-  html+=`<p style="color:#888;margin:0 0 8px">${filtered.length} event${filtered.length!==1?'s':''}${regex?' in category':' total'}. Colored badges = near cycle boundary.</p>`;
-  filtered.forEach(([y,d])=>{
-    const ann=calcAnn(y);
-    const tag=ann?`<span style="font-size:11px;color:#999"> [P${ann.pN} ${ann.dun[0]}${ann.juN}]</span>`:'';
-    const badge=cycleBadge(y);
-    const hl=y===yr?' style="background:#fff8e0;padding:2px 4px;border-radius:3px"':'';
-    html+=`<div${hl}><a href="#" onclick="document.getElementById('yr').value='${y}';loadRef();closeInfo();return false" style="color:#2a6496;text-decoration:none"><b>${fmtY(y)}</b></a>: ${d}${tag}${badge}</div>`;
-  });
-  html+='</div>';
-  document.getElementById('modalTitle').textContent='📜 Historical Events Database';
-  document.getElementById('modalBody').innerHTML=html;
-  document.getElementById('modal').style.display='flex';
-}
-
-document.getElementById('yr').addEventListener('keydown',e=>{if(e.key==='Enter')loadRef();});
-document.getElementById('yr').addEventListener('change',loadRef);
-function showGrandCycle(){
-  const yr=parseInt(document.getElementById('yr').value)||2026;
-  const a=calcAnn(yr); if(!a) return;
-  const gcBase=(a.gcN-1)*4860;
-  const palData={};
-  const ordNames=['1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
-  for(let pi=0;pi<9;pi++){
-    const pN=PSEQ[pi], ps=gcBase+pi*540;
-    const jus=[];
-    for(let ti=0;ti<3;ti++) for(let ji=0;ji<3;ji++){
-      let juN,dun;
-      if(pN===5){const ap=ti*180+ji*60;const e=CTR5.find(([s,d])=>ap>=s&&ap<s+d)||CTR5[0];juN=e[2];dun=e[3];}
-      else{const isY=YANG_PALS.has(pN);dun=isY?'Yang':'Yin';juN=isY?((pN-1+ti+ji*3)%9+9)%9+1:((pN-1-ti-ji*3)%9+9)%9+1;}
-      jus.push({juN,dun});
-    }
-    palData[pN]={pN,pi,ord:ordNames[pi],s:a2y(ps),e:a2y(ps+540),
-      dun:pN===5?'Yin↔Yang':(YANG_PALS.has(pN)?'Yang':'Yin'),jus,cur:pN===a.pN};
-  }
-  const GRID=[4,9,2,3,5,7,8,1,6];
-  let h='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:560px;margin:0 auto;background:#333;border-radius:4px;overflow:hidden">';
-  GRID.forEach(pN=>{
-    const p=palData[pN];
-    const bg=p.cur?'#e4edf8':'#fafafa';
-    const bdr=p.cur?'box-shadow:inset 0 0 0 3px #2a6496;':'';
-    const dunCol=p.dun.includes('Yang')&&!p.dun.includes('Yin')?'#e8a000':'#5c99f0';
-    const dunCol2=p.dun.includes('↔')?'#888':dunCol;
-    h+=`<div style="background:${bg};padding:8px 5px;${bdr}position:relative">`;
-    h+=`<div style="font-size:12px;font-weight:700;text-align:center;color:#333">${PI[pN].n} (${pN})</div>`;
-    h+=`<div style="font-size:10px;text-align:center;color:${dunCol2};font-weight:600">${p.dun} Dun</div>`;
-    h+=`<div style="font-size:9px;text-align:center;color:#aaa;margin-bottom:5px">${fmtY(p.s)} → ${fmtY(p.e)}</div>`;
-    h+=`<div style="position:absolute;top:3px;right:5px;font-size:8px;color:#bbb">${p.ord}</div>`;
-    // 3×3 jú grid: columns = terne (下中上 right-to-left), rows = jú within terna
-    h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;text-align:center">';
-    h+='<div style="font-size:8px;color:#ccc">下</div><div style="font-size:8px;color:#ccc">中</div><div style="font-size:8px;color:#ccc">上</div>';
-    for(let ji=0;ji<3;ji++){
-      for(let ti=2;ti>=0;ti--){
-        const j=p.jus[ti*3+ji];
-        const isCur=p.cur&&ti===a.ti&&ji===a.ji;
-        const col=j.dun==='Yang'?'#e8a000':'#5c99f0';
-        const circle=isCur?'border:2.5px solid #e04040;border-radius:50%;':'';
-        h+=`<div style="padding:1px"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;font-size:15px;font-weight:700;color:${col};${circle}">${j.juN}</span></div>`;
-      }
-    }
-    h+='</div></div>';
-  });
-  h+='</div>';
-  // Legend
-  h+='<div style="margin-top:10px;font-size:11px;color:#888;text-align:center;line-height:2">';
-  h+='<span style="color:#e8a000;font-weight:700">■</span> Yang Dun &nbsp; <span style="color:#5c99f0;font-weight:700">■</span> Yin Dun &nbsp; ';
-  h+='<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:2.5px solid #e04040;border-radius:50%;font-size:10px;font-weight:700;color:#e04040">n</span> Current Jú &nbsp; ';
-  h+='<span style="display:inline-block;width:16px;height:12px;box-shadow:inset 0 0 0 2.5px #2a6496;border-radius:2px"></span> Current Palace';
-  h+='<br>Palace order: Kan→Lí→Gèn→Duì→Qián→Ctr→Xùn→Zhèn→Kūn (retrograde from Kǎn)</div>';
-  document.getElementById('modalTitle').textContent='Grand Cycle #'+a.gcN+' · 4860 Years';
-  document.getElementById('modalBody').innerHTML=h;
-  document.getElementById('modal').style.display='flex';
-}
-
-window.addEventListener('load',()=>{loadRef();});
-
-// ── RESPONSIVE SCALING ────────────────────────────────────────────────────
-// The chart's natural size is FIXED by design (no need to measure — avoids timing bugs):
-//   width  = 2 side cols (44) + grid (3*160 + gaps/margins) = 576px
-//   height = top row (34) + grid (3*158 + gaps/margins) + bottom row (34) = 550px
-const DESIGN_W = 576, DESIGN_H = 550;
-function scaleChart(){
-  const scaler = document.getElementById('scaler');
-  const frame = document.getElementById('chart');
-  if(!frame || !frame.firstChild) return;
-  const vw = window.innerWidth || document.documentElement.clientWidth || 400;
-  const sc = Math.min(1, (vw - 10) / DESIGN_W);
-  frame.style.transformOrigin = 'top left';
-  frame.style.transform = 'scale(' + sc + ')';
-  scaler.style.width  = Math.round(DESIGN_W * sc) + 'px';
-  scaler.style.height = Math.round(DESIGN_H * sc) + 'px';
-}
-function scaleChartSoon(){
-  scaleChart();
-  requestAnimationFrame(scaleChart);
-  setTimeout(scaleChart, 80);
-  setTimeout(scaleChart, 300);
-}
-window.addEventListener('resize', scaleChart);
-window.addEventListener('orientationchange', function(){setTimeout(scaleChart,200);});
-if(document.fonts&&document.fonts.ready){document.fonts.ready.then(scaleChart);}
-
+/* init */
+drawYear(NOW);
 </script>
 </body>
 </html>
