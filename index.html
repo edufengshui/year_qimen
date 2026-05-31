@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QMDJ Yearly Chart</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital@0;1&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#ece6da; --bg2:#e4ddcd; --paper:#fbf8f1; --ink:#2b2620; --ink-soft:#6a6052;
-    --green:#2f6f53; --green-d:#234f3c; --gold:#a9863f; --gold-d:#7d6024; --cinnabar:#b5432f;
+    --green:#2f8b5a; --green-d:#236b45; --gold:#a9863f; --gold-d:#7d6024; --cinnabar:#b5432f;
+    --zb-white:#8a93a0; --zb-black:#3a3a44; --zb-jade:#2c8f86; --zb-green:#3f8f4a; --zb-yellow:#bd8b2a; --zb-red:#c0392b; --zb-purple:#7b54a8;
     --line:#cfc6b2; --line-soft:#e0d8c6;
-    /* 五行 */
     --wood:#3f8f4a; --fire:#c0392b; --earth:#bd8b2a; --metal:#7d8893; --water:#2f6da8;
-    /* porte */
     --auspic:#e7efe5; --inauspic:#f4e6e3; --neutral:#f3eee2;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -24,18 +23,15 @@
       linear-gradient(170deg,var(--bg),var(--bg2));
     background-attachment:fixed; min-height:100vh; padding:0 0 70px}
   .cjk{font-family:'Noto Serif TC',serif}
-  .wrap{max-width:980px; margin:0 auto; padding:30px 20px}
+  .wrap{max-width:760px; margin:0 auto; padding:30px 20px}
 
-  /* header */
   header{text-align:center; margin-bottom:18px}
-  h1{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(30px,5vw,44px);
-    letter-spacing:.01em; color:var(--ink)}
+  h1{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(30px,5vw,44px); color:var(--ink)}
   h1 .v{font-family:'EB Garamond',serif; font-size:.4em; color:var(--ink-soft); vertical-align:middle; margin-left:8px; font-style:italic}
   .subhead{color:var(--green-d); font-size:clamp(15px,2.4vw,18px); margin-top:4px; letter-spacing:.02em}
   .subhead .cjk{color:var(--cinnabar)}
-  .rule{height:2px; background:linear-gradient(90deg,transparent,var(--green),transparent); margin:14px auto 22px; max-width:560px}
+  .rule{height:2px; background:linear-gradient(90deg,transparent,var(--green),transparent); margin:14px auto 22px; max-width:480px}
 
-  /* toolbar */
   .toolbar{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:20px}
   .toolbar label{font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft)}
   input.year{width:96px; padding:8px 10px; border:1px solid var(--line); border-radius:5px; background:var(--paper);
@@ -50,7 +46,6 @@
   .btn-cyc{background:#dbe7ee; color:#2c5a78; border-color:#c4d7e2}
   .btn-cyc:hover{background:#cfe0ea}
 
-  /* info band */
   .band{display:grid; grid-template-columns:1fr auto auto; gap:14px; align-items:stretch;
     background:var(--paper); border:1px solid var(--line); border-radius:9px; padding:16px 20px; margin-bottom:20px;
     box-shadow:0 6px 20px -14px rgba(0,0,0,.4)}
@@ -65,41 +60,52 @@
   .pill .v small{font-size:13px; color:var(--ink-soft)}
   .pill .vc{font-family:'Noto Serif TC',serif; color:var(--ink-soft); font-size:13px}
 
-  /* QMDJ BOARD */
-  .board-frame{background:var(--green); border-radius:10px; padding:30px 26px; position:relative;
-    box-shadow:0 14px 40px -22px rgba(0,0,0,.6); margin-bottom:8px}
+  /* ===== SQUARE QMDJ BOARD ===== */
+  .board-frame{background:var(--green); border-radius:10px; padding:30px; position:relative;
+    box-shadow:0 14px 40px -22px rgba(0,0,0,.6); margin:0 auto 8px; max-width:600px; aspect-ratio:1}
   .dir{position:absolute; color:#cfe6d8; font-size:12px; letter-spacing:.12em; font-weight:600}
-  .dir.cjk{font-size:15px; opacity:.92}
-  .board{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
-  .pal{background:var(--paper); border-radius:7px; padding:11px 12px 12px; min-height:138px; position:relative;
+  .dir.cjk{font-size:15px; opacity:.92; font-weight:400}
+  .board{width:100%; height:100%; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:7px}
+  .pal{background:var(--paper); border-radius:6px; padding:9px 10px; position:relative; overflow:hidden;
     display:grid; grid-template-rows:auto 1fr auto; animation:rise .45s both}
-  .pal.aus{background:var(--auspic)} .pal.ina{background:var(--inauspic)} .pal.neu{background:var(--neutral)}
+  .pal.yearbr{background:#f7ece9}                 /* palazzo del ramo dell'anno: rossiccio leggero */
+  .pal.void{background:#f1f0ed}                   /* palazzo vuoto (空亡): grigio leggerissimo */
+  .voidmark{position:absolute; top:50%; right:7px; transform:translateY(-50%); width:16px; height:16px; border-radius:50%;
+    background:#9a958c; color:#fff; font-size:11px; font-weight:700; line-height:16px; text-align:center;
+    cursor:pointer; font-family:'Cormorant Garamond',serif; z-index:4}
+  .voidmark:hover{background:#7d786f}
   .pal.fu{box-shadow:inset 0 0 0 2px var(--gold), 0 8px 22px -12px rgba(169,134,63,.7)}
-  .p-tag{position:absolute; top:6px; left:10px; font-size:9.5px; letter-spacing:.08em; color:var(--ink-soft); opacity:.8}
-  .p-tag .cjk{color:var(--green-d); opacity:.9}
-  /* row 1 */
-  .r1{display:flex; justify-content:space-between; align-items:flex-start; margin-top:9px}
-  .hstem{font-family:'Noto Serif TC',serif; font-size:24px; line-height:1; font-weight:600}
-  .deity{text-align:center; flex:1; padding:0 4px}
-  .deity .en{font-size:13px; font-weight:600; color:var(--ink)}
-  .deity .cn{font-family:'Noto Serif TC',serif; font-size:11px; color:var(--ink-soft)}
-  .star{font-style:italic; font-size:12.5px; color:var(--ink-soft); text-align:right; min-width:46px}
-  .star .cn{font-style:normal; font-family:'Noto Serif TC',serif; display:block; font-size:10px; opacity:.7}
-  /* row 2 door */
+  .r1{display:grid; grid-template-columns:1fr auto 1fr; align-items:start; margin-top:6px; gap:2px}
+  .hstem{font-family:'Noto Serif TC',serif; font-size:23px; line-height:1; font-weight:600; justify-self:start}
+  .deity{text-align:center; padding:0 2px}
+  .deity .en{font-size:12.5px; font-weight:600; color:var(--ink); line-height:1.15}
+  .deity .cn{font-family:'Noto Serif TC',serif; font-size:10.5px; color:var(--ink-soft)}
+  .star{font-style:italic; font-size:12px; color:var(--ink-soft); text-align:right; line-height:1.15; justify-self:end}
+  .star .cn{font-style:normal; font-family:'Noto Serif TC',serif; display:block; font-size:9.5px; opacity:.7}
   .door{text-align:center; align-self:center}
-  .door .en{font-family:'Cormorant Garamond',serif; font-size:21px; letter-spacing:.03em; color:var(--ink)}
-  .door .cn{font-family:'Noto Serif TC',serif; font-size:12px; color:var(--ink-soft)}
-  /* row 3 */
-  .r3{display:flex; justify-content:space-between; align-items:flex-end}
-  .estem{font-family:'Noto Serif TC',serif; font-size:24px; line-height:1; font-weight:600; display:flex; align-items:flex-end; gap:5px}
-  .ymark{font-size:13px; border:1.5px solid var(--cinnabar); color:var(--cinnabar); border-radius:3px; padding:0 3px; line-height:1.3}
-  .zb{width:25px;height:25px;border-radius:50%;border:1.5px solid var(--gold-d); color:var(--gold-d);
-    display:flex;align-items:center;justify-content:center; font-size:14px; font-family:'Cormorant Garamond',serif}
+  .door .en{font-family:'Cormorant Garamond',serif; font-size:20px; letter-spacing:.03em; color:var(--ink)}
+  .door .cn{font-family:'Noto Serif TC',serif; font-size:11px; color:var(--ink-soft)}
+  .r3{display:grid; grid-template-columns:auto 1fr auto; align-items:end; gap:2px}
+  .palabel{text-align:center; align-self:end; font-size:9px; letter-spacing:.05em; color:var(--ink-soft); line-height:1.25; padding-bottom:1px}
+  .palabel .cjk{color:var(--green-d)} .palabel .br{display:block; font-size:8.5px; opacity:.8}
+  .estem{font-family:'Noto Serif TC',serif; font-size:23px; line-height:1; font-weight:600; display:flex; align-items:flex-end; gap:4px; justify-self:start}
+  .ymark{font-size:12px; border:1.5px solid var(--cinnabar); color:var(--cinnabar); border-radius:3px; padding:0 3px; line-height:1.3}
+  .lodge{font-size:12px; opacity:.55; margin-left:2px; vertical-align:super; font-weight:400}
+  .zb{width:24px;height:24px;border-radius:50%;border:1.6px solid var(--gold-d); color:var(--gold-d);
+    display:flex;align-items:center;justify-content:center; font-size:13px; font-family:'Cormorant Garamond',serif}
+  .zb1{border-color:var(--zb-white);color:var(--zb-white)} .zb2{border-color:var(--zb-black);color:var(--zb-black)}
+  .zb3{border-color:var(--zb-jade);color:var(--zb-jade)} .zb4{border-color:var(--zb-green);color:var(--zb-green)}
+  .zb5{border-color:var(--zb-yellow);color:var(--zb-yellow)} .zb6{border-color:var(--zb-white);color:var(--zb-white)}
+  .zb7{border-color:var(--zb-red);color:var(--zb-red)} .zb8{border-color:var(--zb-white);color:var(--zb-white)}
+  .zb9{border-color:var(--zb-purple);color:var(--zb-purple)}
+  /* evidenza in grassetto */
+  .hl{font-weight:900 !important}
+  .deity.fu .en{font-weight:800; color:var(--cinnabar)} .deity.fu .cn{font-weight:700; color:var(--cinnabar)}
+  .door.zs .en{font-weight:700; color:var(--green-d); letter-spacing:.04em} .door.zs .cn{font-weight:900; color:var(--green-d)}
   .wood{color:var(--wood)} .fire{color:var(--fire)} .earth{color:var(--earth)} .metal{color:var(--metal)} .water{color:var(--water)}
-  .center-pal .deity, .center-pal .door{opacity:.55}
-  .lodge{font-size:13px; opacity:.55; margin-left:3px; vertical-align:super; font-weight:400}
+  .center-pal .deity, .center-pal .door{opacity:.5}
 
-  .paninfo{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 4px}
+  .paninfo{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px auto 4px; max-width:600px}
   .paninfo .pi{background:var(--paper); border:1px solid var(--line); border-radius:7px; padding:10px 14px; text-align:center}
   .paninfo .pk{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-d)}
   .paninfo .pk .cjk{letter-spacing:0}
@@ -108,13 +114,31 @@
 
   .legend{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; font-size:12px; color:var(--ink-soft); margin:14px 0 6px}
   .legend b{font-weight:600; color:var(--ink)}
-  .note-inferred{font-size:12px; color:var(--gold-d); text-align:center; margin-top:6px; font-style:italic}
+  .vnote{font-size:12px; color:var(--gold-d); text-align:center; margin-top:6px; font-style:italic; max-width:600px; margin-left:auto; margin-right:auto}
 
-  .footnote{margin-top:26px; text-align:center}
+  /* ===== cycle ladder panels ===== */
+  .cycles{max-width:600px; margin:22px auto 0}
+  .cyc-head{font-family:'Cormorant Garamond',serif; font-size:19px; color:var(--green-d); text-align:center; margin-bottom:12px}
+  .cyc-head span{font-family:'EB Garamond',serif; font-size:13px; color:var(--ink-soft); font-style:italic}
+  .cycle-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:9px}
+  .cyc-panel{position:relative; background:var(--paper); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px 13px; cursor:pointer; transition:.2s; text-align:left}
+  .cyc-panel:hover{border-color:var(--gold); background:#fffdf6; box-shadow:0 6px 18px -12px rgba(125,96,36,.5)}
+  .cyc-panel.cur{box-shadow:inset 0 0 0 1.5px var(--gold)}
+  .cyc-panel .k{font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-d); padding-right:14px}
+  .cyc-panel .v{font-family:'Cormorant Garamond',serif; font-size:21px; color:var(--ink); line-height:1.1; margin-top:3px}
+  .cyc-panel .v .cjk{color:var(--cinnabar)} .cyc-panel .v small{font-size:13px; color:var(--ink-soft)}
+  .cyc-panel .r{font-size:11px; color:var(--ink-soft); margin-top:3px; letter-spacing:.02em}
+  .cyc-panel .i{position:absolute; top:8px; right:9px; width:15px; height:15px; border-radius:50%;
+    border:1px solid var(--line); color:var(--gold-d); font-size:10px; font-style:italic;
+    display:flex; align-items:center; justify-content:center; line-height:1}
+  .cyc-panel:hover .i{border-color:var(--gold)}
+  .span2{grid-column:span 2} .span3{grid-column:span 3}
+
+  .footnote{margin-top:24px; text-align:center}
   .footnote .btn{font-size:13px}
   footer{margin-top:18px; text-align:center; color:var(--ink-soft); font-size:12px; line-height:1.6}
 
-  /* modal */
   .modal{position:fixed; inset:0; background:rgba(40,34,26,.5); backdrop-filter:blur(2px); display:none;
     align-items:flex-start; justify-content:center; z-index:50; padding:36px 16px; overflow:auto}
   .modal.open{display:flex; animation:fade .2s}
@@ -127,11 +151,12 @@
   .sheet p.s{font-size:14px; color:var(--ink-soft)}
   .sheet .cjk{color:var(--gold-d)}
   .sheet .eq{font-family:'Cormorant Garamond',serif; color:var(--green-d); font-size:16px}
+  .sheet .pos{background:#eef3ec; border:1px solid #d6e3d2; border-radius:6px; padding:12px 16px; margin:14px 0; font-size:15px}
+  .sheet .pos b{color:var(--green-d)}
   .sheet .flag{border-left:3px solid var(--cinnabar); background:#f6e9e6; padding:10px 14px; border-radius:0 5px 5px 0; font-size:14px; margin:14px 0}
   .x{position:absolute; top:12px; right:16px; border:none; background:none; font-size:24px; color:var(--ink-soft); cursor:pointer}
   .x:hover{color:var(--cinnabar)}
 
-  /* cycle viewer (4860y) */
   .luoshu{display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--line); border:1px solid var(--line); border-radius:7px; overflow:hidden; margin-top:6px}
   .lp{background:var(--paper); padding:11px 12px; min-height:140px; position:relative}
   .lp.cur{box-shadow:inset 0 0 0 2px var(--gold)}
@@ -154,8 +179,10 @@
   @keyframes fade{from{opacity:0}to{opacity:1}}
   @media(max-width:620px){
     .band{grid-template-columns:1fr} .pill{border-left:none;border-top:1px solid var(--line-soft);padding:8px 0 0}
-    .pal{min-height:124px;padding:9px} .hstem,.estem{font-size:20px} .board-frame{padding:26px 14px}
-    .dir{display:none}
+    .board-frame{padding:20px 16px}
+    .hstem,.estem{font-size:18px} .door .en{font-size:16px} .deity .en{font-size:10.5px} .star{font-size:10px}
+    .dir{display:none} .zb{width:20px;height:20px;font-size:11px}
+    .cycle-grid{grid-template-columns:repeat(2,1fr)} .span2,.span3{grid-column:span 2}
   }
 </style>
 </head>
@@ -163,7 +190,7 @@
 <div class="wrap">
 
   <header>
-    <h1>QMDJ Yearly Chart <span class="v">v33 · Strada A</span></h1>
+    <h1>QMDJ Yearly Chart <span class="v">v35</span></h1>
     <div class="subhead" id="subhead"></div>
     <div class="rule"></div>
   </header>
@@ -172,94 +199,111 @@
     <label for="yr">Year</label>
     <input class="year" id="yr" value="2026">
     <button class="btn btn-draw" id="draw">Draw Chart</button>
-    <button class="btn btn-soft" id="events">📖 Events</button>
-    <button class="btn btn-cyc" id="cyc">🧭 4860y</button>
+    <button class="btn btn-soft" id="events">&#128214; Events</button>
+    <button class="btn btn-cyc" id="cyc">&#129517; 9-Palace Viewer</button>
   </div>
 
-  <!-- INFO BAND -->
   <div class="band" id="band"></div>
 
-  <!-- QMDJ BOARD -->
   <div class="board-frame">
     <span class="dir" style="top:8px; left:30px">SE</span>
-    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-110px)">巳</span>
-    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-6px)">午</span>
+    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-110px)">&#24051;</span>
+    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-6px)">&#21320;</span>
     <span class="dir" style="top:8px; left:50%; transform:translateX(2px); font-size:9px; margin-top:14px">S</span>
-    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(100px)">未</span>
+    <span class="dir cjk" style="top:7px; left:50%; transform:translateX(100px)">&#26410;</span>
     <span class="dir" style="top:8px; right:30px">SW</span>
-    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(-60px)">辰</span>
-    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(-6px)">卯</span><span class="dir" style="top:50%;left:20px;transform:translateY(-6px);font-size:9px">E</span>
-    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(52px)">寅</span>
-    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(-60px)">申</span>
-    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(-6px)">酉</span><span class="dir" style="top:50%;right:20px;transform:translateY(-6px);font-size:9px">W</span>
-    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(52px)">戌</span>
+    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(-60px)">&#36784;</span>
+    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(-6px)">&#21359;</span><span class="dir" style="top:50%;left:20px;transform:translateY(-6px);font-size:9px">E</span>
+    <span class="dir cjk" style="top:50%; left:9px; transform:translateY(52px)">&#23493;</span>
+    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(-60px)">&#30003;</span>
+    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(-6px)">&#37193;</span><span class="dir" style="top:50%;right:20px;transform:translateY(-6px);font-size:9px">W</span>
+    <span class="dir cjk" style="top:50%; right:9px; transform:translateY(52px)">&#25100;</span>
     <span class="dir" style="bottom:8px; left:30px">NE</span>
-    <span class="dir cjk" style="bottom:7px; left:50%; transform:translateX(-6px)">子</span>
+    <span class="dir cjk" style="bottom:7px; left:50%; transform:translateX(-6px)">&#23376;</span>
     <span class="dir" style="bottom:8px; right:30px">NW</span>
     <div class="board" id="board"></div>
   </div>
 
-  <!-- PAN INFO diagnostico -->
   <div class="paninfo" id="paninfo"></div>
 
   <div class="legend">
-    <span><b class="cjk wood">乙</b> Legno</span><span><b class="cjk fire">丙丁</b> Fuoco</span>
-    <span><b class="cjk earth">戊己</b> Terra</span><span><b class="cjk metal">庚辛</b> Metallo</span>
-    <span><b class="cjk water">壬癸</b> Acqua</span>
-    <span>&nbsp;|&nbsp; <b>天</b> stelo cielo · <b>地</b> stelo terra · <span style="opacity:.6">辛</span> 寄宮 (annidamento del centro)</span>
+    <span><b class="cjk wood">&#20057;</b> Wood</span><span><b class="cjk fire">&#19993;&#19969;</b> Fire</span>
+    <span><b class="cjk earth">&#25098;&#24049;</b> Earth</span><span><b class="cjk metal">&#24218;&#36763;</b> Metal</span>
+    <span><b class="cjk water">&#22764;&#30328;</b> Water</span>
+    <span>&nbsp;|&nbsp; <b>&#22825;</b> heaven stem &middot; <b>&#22320;</b> earth stem &middot; <span style="opacity:.55">&#36763;</span> center lodging (&#23492;&#23470;)</span>
+    <span>&nbsp;|&nbsp; <span style="background:#f7ece9;padding:1px 6px;border-radius:3px">reddish</span> = year-branch palace &middot; <span style="background:#f1f0ed;padding:1px 6px;border-radius:3px">gray + V</span> = void 空亡</span>
   </div>
-  <div class="note-inferred" id="inferred">Tutte le etichette (CJK e inglese) validate su due riferimenti indipendenti: v28 (Yin Jú 3) e 1080-Ju Pan (Yang Jú 2). Il cerchio dorato in basso a destra è la stella annuale 紫白 (non il numero fisso del palazzo).</div>
+  <div class="vnote" id="vnote">Every label (CJK and English) is cross-checked against two independent references: the v28 chart (Yin Jú 3) and an 1080-Ju pan (Yang Jú 2). The gold circle (lower-right of each palace) is the annual 紫白 flying star — not the palace's fixed number.</div>
+
+  <!-- ===== CYCLE TABS ===== -->
+  <!-- ===== CYCLE LADDER ===== -->
+  <div class="cycles">
+    <div class="cyc-head">Time Cycles <span>&mdash; tap any tier for what it is</span></div>
+    <div class="cycle-grid" id="cyclegrid"></div>
+  </div>
 
   <div class="footnote">
-    <button class="btn btn-soft" data-modal="m-anchor" style="background:#f1ead9;border-color:#e6dcc2">Sull'ancoraggio temporale del sistema</button>
+    <button class="btn btn-soft" data-modal="m-anchor" style="background:#f1ead9;border-color:#e6dcc2">About the time anchor</button>
   </div>
 
   <footer>
-    <span class="cjk" style="color:var(--green-d)">奇門遁甲</span> — Qi Men Dun Jia, carta annuale. Motore 转盘, validato su due carte di riferimento.
+    <span class="cjk" style="color:var(--green-d)">&#22855;&#38272;&#36889;&#30002;</span> &mdash; Qi Men Dun Jia, yearly chart. 转盘 (rotating-pan) engine, validated against two reference charts.
   </footer>
 </div>
 
-<!-- ===== MODAL: cycle viewer ===== -->
+<!-- ===== MODAL: per-cycle pop-up ===== -->
+<div class="modal" id="m-tier"><div class="sheet">
+  <button class="x" data-close>&times;</button>
+  <div id="tierBody"></div>
+</div></div>
+
+<!-- ===== MODAL: 9-palace viewer ===== -->
 <div class="modal" id="m-cyc"><div class="sheet" style="max-width:720px">
-  <button class="x" data-close>×</button>
-  <h3>Visore dei grandi cicli <span style="font-size:.6em;color:var(--ink-soft)">· 4860 anni</span></h3>
-  <div class="pin">Ossatura calendariale (Strada A) — contesto, non parte della carta QMDJ.</div>
+  <button class="x" data-close>&times;</button>
+  <h3>9-Palace Grand-Cycle Viewer <span style="font-size:.6em;color:var(--ink-soft)">&middot; 4860 years</span></h3>
+  <div class="pin">Calendrical scaffold &mdash; context only, not part of the QMDJ chart.</div>
   <div class="cyc-nav">
     <div><div class="t" id="cycT"></div><div class="m" id="cycM"></div></div>
     <div style="display:flex;gap:6px">
-      <button class="btn btn-soft" id="cPrev" style="padding:5px 12px">‹</button>
-      <button class="btn btn-soft" id="cNow" style="padding:5px 12px">Ora</button>
-      <button class="btn btn-soft" id="cNext" style="padding:5px 12px">›</button>
+      <button class="btn btn-soft" id="cPrev" style="padding:5px 12px">&lsaquo;</button>
+      <button class="btn btn-soft" id="cNow" style="padding:5px 12px">Now</button>
+      <button class="btn btn-soft" id="cNext" style="padding:5px 12px">&rsaquo;</button>
     </div>
   </div>
   <div class="luoshu" id="luoshu"></div>
-  <p class="s" style="margin-top:14px">La sequenza dei palazzi cala 1→9→8→…→2; ogni palazzo dura 540 anni (9×60). Il palazzo evidenziato contiene l'anno della carta; il numero cerchiato è il Jú del sotto-ciclo di 60 anni in corso.</p>
+  <p class="s" style="margin-top:14px">The palace sequence descends 1&rarr;9&rarr;8&rarr;&hellip;&rarr;2; each palace lasts 540 years (9&times;60). The highlighted palace holds the chart's year; the circled digit is the Jú of the running 60-year sub-cycle.</p>
 </div></div>
 
 <!-- ===== MODAL: anchor / Tai Yi background ===== -->
 <div class="modal" id="m-anchor"><div class="sheet">
-  <button class="x" data-close>×</button>
-  <h3>Ancoraggio temporale del sistema</h3>
-  <div class="pin">Perché le date dei grandi cicli sono affidabili anche molto indietro nel tempo</div>
-  <p>Questa è una <strong>carta Qi Men Dun Jia</strong> a tutti gli effetti: piastre, steli, nove stelle, otto porte e otto divinità sono calcolati con il metodo QMDJ standard. Nulla di Tai Yi entra nel <em>contenuto</em> della carta.</p>
-  <p>L'unico punto in cui interviene un riferimento esterno è la <strong>datazione dei cicli lunghi</strong> (il palazzo da 540 anni e i suoi sotto-cicli). Per ancorare questa scansione molto indietro nel tempo serve un'epoca-origine stabile; invece di estrapolare un conteggio sessagenario in stile Bazi — che su scale di migliaia di anni accumula deriva e ambiguità — il sistema adotta come origine un'epoca <strong>calendariale già fissata da una fonte autorevole</strong>: il <span class="cjk">上元</span> della tradizione <span class="cjk">太乙金鏡</span> (Specchio d'Oro, dinastia Tang), pari a <span class="eq">1.936.557 a.C.</span></p>
-  <p class="s">Questa epoca è scelta perché cade <em>esattamente</em> su un confine della griglia ciclica (a 4860×399 = 92.340×21 anni dal reset del 2584 d.C.): fornisce quindi un punto-zero coerente e verificabile, non una stima. In breve: il Tai Yi è usato come <strong>calendario di riferimento</strong> per datare i cicli, non come tecnica di lettura.</p>
-  <div class="flag"><strong>Da chiarire, per evitare equivoci:</strong> non si sta unendo Tai Yi e Qi Men. La carta resta interamente QMDJ; il <span class="cjk">金鏡</span> è solo il righello con cui si misurano gli anni. La coerenza metonica (ciclo di 19 anni) è una proprietà di fase del contatore calendariale, non un'affermazione astronomica.</p></div>
+  <button class="x" data-close>&times;</button>
+  <h3>About the time anchor</h3>
+  <div class="pin">Why the long-cycle dates stay reliable far back in time</div>
+  <p>This is a <strong>Qi Men Dun Jia chart</strong> through and through: the plates, stems, nine stars, eight doors and eight deities are all computed by the standard QMDJ method. Nothing from Tai Yi enters the <em>content</em> of the chart.</p>
+  <p>The only place an outside reference is used is the <strong>dating of the long cycles</strong> (the 540-year palace and its sub-cycles). To anchor that count far back in time you need a stable origin epoch; rather than extrapolating a sexagenary count Bazi-style &mdash; which accrues drift and ambiguity over thousands of years &mdash; the system adopts an epoch that is <strong>already fixed by an authoritative calendar</strong>: the <span class="cjk">上元</span> of the <span class="cjk">太乙金鏡</span> tradition (the Tang-dynasty &ldquo;Golden Mirror&rdquo;), namely <span class="eq">1,936,557 BC</span>.</p>
+  <p class="s">That epoch is chosen because it falls <em>exactly</em> on a boundary of the cyclic lattice (4860&times;399 = 92,340&times;21 years before the 2584 AD reset): it gives a coherent, checkable zero-point, not a guess. In short, Tai Yi is used as a <strong>reference calendar</strong> for dating the cycles, not as a reading technique.</p>
+  <div class="flag"><strong>To be clear, so there is no confusion:</strong> Tai Yi and Qi Men are not being merged. The chart stays entirely QMDJ; the <span class="cjk">金鏡</span> is only the ruler used to measure the years. The Metonic coherence (19-year cycle) is a phase property of the calendrical counter, not an astronomical claim.</div>
 </div></div>
 
-<!-- ===== MODAL: events (placeholder) ===== -->
+<!-- ===== MODAL: events ===== -->
 <div class="modal" id="m-events"><div class="sheet">
-  <button class="x" data-close>×</button>
+  <button class="x" data-close>&times;</button>
   <h3>Events</h3>
-  <div class="pin">Annotazioni per l'anno in carta</div>
-  <p class="s">Spazio riservato agli eventi/annotazioni dell'anno selezionato. Da collegare alla tua sorgente dati quando vorrai.</p>
+  <div class="pin">Notes for the charted year</div>
+  <p class="s">Reserved for events / annotations on the selected year. Ready to wire up to your data source whenever you like.</p>
+</div></div>
+
+<!-- ===== MODAL: void / 空亡 ===== -->
+<div class="modal" id="m-void"><div class="sheet">
+  <button class="x" data-close>&times;</button>
+  <div id="voidBody"></div>
 </div></div>
 
 <script>
-/* ================= CICLI (Strada A, origine 金鏡) ================= */
+/* ================= CYCLES (金鏡 origin) ================= */
 const ORIGIN=-1936556, PALACE=540, GRAND=4860, SUPER=92340, JIAZI=60, YUAN=180;
 const SEQ=[1,9,8,7,6,5,4,3,2];
-const PNAME={1:'Kǎn',2:'Kūn',3:'Zhèn',4:'Xùn',5:'Centro',6:'Qián',7:'Duì',8:'Gèn',9:'Lí'};
+const PNAME={1:'Kǎn',2:'Kūn',3:'Zhèn',4:'Xùn',5:'Center',6:'Qián',7:'Duì',8:'Gèn',9:'Lí'};
 const PCJK ={1:'坎',2:'坤',3:'震',4:'巽',5:'中',6:'乾',7:'兌',8:'艮',9:'離'};
 const PDUN ={1:1,2:-1,3:1,4:1,5:0,6:-1,7:-1,8:1,9:-1};
 const LUOSHU=[4,9,2,3,5,7,8,1,6];
@@ -275,7 +319,7 @@ function cyc(astro){
   return {gc,sup,ord,p,sub,yuan,ju,dun:PDUN[p],palStart,subStart:palStart+sub*JIAZI};
 }
 
-/* ================= MOTORE QMDJ (转盘, validato v28) ================= */
+/* ================= QMDJ ENGINE (转盘, validated vs v28) ================= */
 const ring=[1,8,3,4,9,2,7,6]; const rIdx={}; ring.forEach((p,i)=>rIdx[p]=i);
 const STAR={1:'天蓬',2:'天芮',3:'天沖',4:'天輔',5:'天禽',6:'天心',7:'天柱',8:'天任',9:'天英'};
 const DOORC={1:'休',2:'死',3:'傷',4:'杜',6:'開',7:'驚',8:'生',9:'景'};
@@ -284,7 +328,7 @@ const DEITYC=['值符','螣蛇','太陰','六合','白虎','玄武','九地','�
 const STEMS=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 const BR=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 const DECYI=['戊','己','庚','辛','壬','癸'];
-// English — validate su DUE riferimenti (v28 Yin Jú3 + 1080-Ju Yang Jú2)
+// English labels — validated against TWO references (v28 Yin Ju3 + 1080-Ju Yang Ju2)
 const STAR_EN={'天蓬':'Grass','天沖':'Aggressor','天柱':'Pillar','天心':'Heart','天任':'Official','天禽':'Fowl','天芮':'Rice','天輔':'Assistant','天英':'Hero'};
 const DOOR_EN={'休':'Rest','死':'Death','驚':'Shocking','開':'Open','景':'View','生':'Birth','傷':'Injury','杜':'Delusion'};
 const DEITY_EN={'值符':'Commander','螣蛇':'Snake','太陰':'Yin','六合':'Harmonies','九天':'Heaven','白虎':'Tiger','玄武':'Warrior','九地':'Earth'};
@@ -311,7 +355,7 @@ function qmdj(J,yang,year){
   fly.forEach((p,i)=>zb[p]=((ctr-1+i)%9)+1);
   return {gz,xunYi,nPos,F,Q,Qraw,earth,hStem,hStar,door,deity,zb,ctr};
 }
-// 值使: porta nativa del palazzo 旬首 (F) e dove vola
+// Zhi Shi: native door of the xun-head palace (F), and where it flies
 function zhiShiDoor(q){ return DOORC[q.F]; }
 function zhiShiPal(q){ const d=DOORC[q.F]; return ring.find(X=>q.door[X]===d); }
 
@@ -320,79 +364,216 @@ const disp=y=> y>=1 ? y+' AD' : (1-y)+' BC';
 function parseYear(s){s=(s||'').trim().toLowerCase(); let bc=/bc|a\.?c\.?/.test(s)||s.startsWith('-'); let n=parseInt(s.replace(/[^0-9]/g,''),10); if(isNaN(n))return null; return bc?1-n:n;}
 const NOW=2026;
 let state={};
+const STEM_PY={'甲':'Jia','乙':'Yi','丙':'Bing','丁':'Ding','戊':'Wu','己':'Ji','庚':'Geng','辛':'Xin','壬':'Ren','癸':'Gui'};
+const BR_PY={'子':'Zi','丑':'Chou','寅':'Yin','卯':'Mao','辰':'Chen','巳':'Si','午':'Wu','未':'Wei','申':'Shen','酉':'You','戌':'Xu','亥':'Hai'};
+const roman=gz=>STEM_PY[gz.stem]+'-'+BR_PY[gz.br];
 
-/* ================= render carta annuale ================= */
+// 空亡 (void/emptiness): i 2 rami senza stelo nella decade, e i palazzi che ne risultano vuoti.
+// Palazzi cardinali (1 ramo) → vuoti se quel ramo è vuoto. Palazzi d'angolo (2 rami):
+//  - entrambi i rami vuoti → vuoto; - un solo ramo vuoto → vuoto se la polarità dello
+//    stelo del Di Pan coincide con quella del ramo vuoto (regola della polarità).
+const PAL_BR={1:[0],8:[1,2],3:[3],4:[4,5],9:[6],2:[7,8],7:[9],6:[10,11]};
+const BR_PAL={0:1,1:8,2:8,3:3,4:4,5:4,6:9,7:2,8:2,9:7,10:6,11:6};
+function voidInfo(q){
+  const dec=Math.floor(q.gz.n/10);
+  const startBr=((12-2*dec)%12+12)%12;
+  const vb=[(startBr+10)%12,(startBr+11)%12];   // indici dei 2 rami vuoti
+  const palaces={};
+  for(const ps in PAL_BR){ const pal=+ps, brs=PAL_BR[pal];
+    const vh=brs.filter(b=>vb.includes(b));
+    if(!vh.length) continue;
+    let isVoid=false, decider=null;
+    if(brs.length===1) isVoid=true;                       // cardinale
+    else if(vh.length===2) isVoid=true;                   // angolo, entrambi vuoti
+    else { const st=q.earth[pal]; const same=(STEMS.indexOf(st)%2===0)===(vh[0]%2===0); isVoid=same; decider={stem:st,br:vh[0]}; }
+    if(isVoid) palaces[pal]={br:vh[0]};
+  }
+  const yearBr=q.gz.n%12;
+  return {dec, head:'甲'+BR[startBr], vbChars:vb.map(b=>BR[b]), vb, palaces, yearPal:BR_PAL[yearBr], yearBrChar:BR[yearBr]};
+}
+const YUAN_EN=['Upper','Middle','Lower'];
+const YUAN_CJK=['上元','中元','下元'];
+
+/* ================= render yearly chart ================= */
 function drawYear(astro){
   const c=cyc(astro);
-  let yang = c.dun>0 ? true : c.dun<0 ? false : true;     // centro → default Yang
+  let yang = c.dun>0 ? true : c.dun<0 ? false : true;
   const J=c.ju;
   const q=qmdj(J,yang,astro);
   state={astro,c,yang,J,q};
   const gz=q.gz, gzTxt=gz.stem+gz.br;
-  const yuanTxt=['Upper','Middle','Lower'][c.yuan]||'Lower';
-  const yuanCJK=['上元','中元','下元'][c.yuan]||'下元';
+  const yuanTxt=YUAN_EN[c.yuan]||'Lower', yuanCJK=YUAN_CJK[c.yuan]||'下元';
 
   document.getElementById('subhead').innerHTML =
-    `${yang?'Yang':'Yin'} Jú ${J} · ${yuanTxt} Cycle · Year: ${gz.stem}-${gz.br} <span class="cjk">${gzTxt}</span>`;
+    `${yang?'Yang':'Yin'} Jú ${J} &middot; ${yuanTxt} Era &middot; Year: ${roman(gz)} <span class="cjk">${gzTxt}</span>`;
 
-  // band
   document.getElementById('band').innerHTML=`
     <div class="main">
       <div class="yr">YEAR</div>
-      <div class="big">${disp(astro)} <span class="gz cjk">${gz.stem}-${gz.br} ${gzTxt}</span></div>
-      <div class="sub"><span class="dun">${yang?'Yang Dun 陽遁':'Yin Dun 陰遁'}</span> · 旬 <span class="cjk">甲${BR[Math.floor(gz.n/10)*10%12]}</span> · 遁干 <span class="cjk">${q.xunYi}</span></div>
+      <div class="big">${disp(astro)} <span class="gz">${roman(gz)}</span> <span class="gz cjk">${gzTxt}</span></div>
+      <div class="sub"><span class="dun">${yang?'Yang Dun 陽遁':'Yin Dun 陰遁'}</span> &middot; Decade <span class="cjk">甲${BR[Math.floor(gz.n/10)*10%12]}</span> &middot; Hidden Stem <span class="cjk">${q.xunYi}</span></div>
     </div>
-    <div class="pill"><div class="k">Annual Star</div><div class="v" style="color:var(--gold-d)">${q.ctr} · center</div><div class="vc">${['','一白','二黑','三碧','四綠','五黃','六白','七赤','八白','九紫'][q.ctr]}</div></div>
-    <div class="pill"><div class="k">Jú · 60Y</div><div class="v">#${J} · <span class="cjk" style="font-size:16px">${yang?'陽遁':'陰遁'}</span></div><div class="vc">${disp(c.subStart)} → ${disp(c.subStart+60)}</div></div>`;
+    <div class="pill"><div class="k">Annual Star</div><div class="v" style="color:var(--gold-d)">${q.ctr} &middot; center</div><div class="vc">${['','一白','二黑','三碧','四綠','五黃','六白','七赤','八白','九紫'][q.ctr]}</div></div>
+    <div class="pill"><div class="k">Jú &middot; 60Y</div><div class="v">#${J} &middot; <span class="cjk" style="font-size:16px">${yang?'陽遁':'陰遁'}</span></div><div class="vc">${disp(c.subStart)} &rarr; ${disp(c.subStart+60)}</div></div>`;
 
-  // board
   const b=document.getElementById('board'); b.innerHTML='';
-  const heavenLodge = ring.find(X => q.hStar[X]==='天芮');   // 天禽(cielo) 寄 con 天芮
+  const heavenLodge = ring.find(X => q.hStar[X]==='天芮');
+  const yearStem = q.gz.stem;            // stelo dell'anno (es. 丙) — da evidenziare nelle due piastre
+  const zsPal = zhiShiPal(q);            // palazzo della porta 值使 — da evidenziare
+  const vi = voidInfo(q); state.vi = vi; // palazzi vuoti (空亡) + palazzo del ramo dell'anno
   LUOSHU.forEach((p,i)=>{
     const isC=(p===5);
-    const dn=isC?'':q.door[p], aus=isC?'neu':AUS[dn];
+    const dn=isC?'':q.door[p];
     const isFu=(p===q.Q && q.deity[p]==='值符');
+    const isVoid=!!vi.palaces[p], isYearBr=(p===vi.yearPal);
+    const shade=isYearBr?' yearbr':(isVoid?' void':'');
     const card=document.createElement('div');
-    card.className='pal '+aus+(isFu?' fu':'')+(isC?' center-pal':'');
+    card.className='pal'+shade+(isFu?' fu':'')+(isC?' center-pal':'');
     card.style.animationDelay=(i*0.04)+'s';
     const hs=q.hStem[p], es=q.earth[p];
-    // marker dello stelo-anno solo se annidato dal centro (Qraw=5), come nella v28
     const yMark=(isFu && q.Qraw===5)?`<span class="ymark cjk">${q.gz.stem}</span>`:'';
-    // 寄宮: stelo del centro che si annida (terra→坤2, cielo→palazzo di 天芮)
     const hLodge=(p===heavenLodge && !isC)?`<span class="lodge cjk ${STEM5[q.hStem[5]]||''}">${q.hStem[5]}</span>`:'';
     const eLodge=(p===2)?`<span class="lodge cjk ${STEM5[q.earth[5]]||''}">${q.earth[5]}</span>`:'';
+    const hHL=(hs===yearStem)?' hl':'';   // stelo anno in Tien Pan
+    const eHL=(es===yearStem)?' hl':'';   // stelo anno in Di Pan
+    const deityCls='deity'+(isFu?' fu':'');               // Commander in grassetto
+    const doorCls='door'+(!isC && p===zsPal?' zs':'');    // porta Zhi Shi in grassetto
+    const vBadge=isVoid?`<div class="voidmark" data-void="1">V</div>`:'';
+    const palabel=`<div class="palabel">${PDIR[p]!=='·'?PDIR[p]+' &middot; ':''}<span class="cjk">${PCJK[p]}</span> ${PINYIN[p]}${PBR[p]?'<span class="br cjk">'+PBR[p]+'</span>':''}</div>`;
     card.innerHTML=`
-      <div class="p-tag">${PDIR[p]} · <span class="cjk">${PCJK[p]}</span> ${PINYIN[p]}${PBR[p]?' · <span class="cjk">'+PBR[p]+'</span>':''}</div>
+      ${vBadge}
       <div class="r1">
-        <div class="hstem cjk ${STEM5[hs]||''}">${hs||''}${hLodge}</div>
-        <div class="deity">${isC?'':`<div class="en">${DEITY_EN[q.deity[p]]}</div><div class="cn cjk">${q.deity[p]}</div>`}</div>
+        <div class="hstem cjk ${STEM5[hs]||''}${hHL}">${hs||''}${hLodge}</div>
+        <div class="${deityCls}">${isC?'':`<div class="en">${DEITY_EN[q.deity[p]]}</div><div class="cn cjk">${q.deity[p]}</div>`}</div>
         <div class="star">${STAR_EN[q.hStar[p]]}<span class="cn cjk">${q.hStar[p]}</span></div>
       </div>
-      <div class="door">${isC?'':`<div class="en">${DOOR_EN[dn].toUpperCase()}</div><div class="cn cjk">${dn}門</div>`}</div>
+      <div class="${doorCls}">${isC?'':`<div class="en">${DOOR_EN[dn].toUpperCase()}</div><div class="cn cjk">${dn}門</div>`}</div>
       <div class="r3">
-        <div class="estem cjk ${STEM5[es]||''}">${es||''}${eLodge}${yMark}</div>
-        <div class="zb">${q.zb[p]}</div>
+        <div class="estem cjk ${STEM5[es]||''}${eHL}">${es||''}${eLodge}${yMark}</div>
+        ${palabel}
+        <div class="zb zb${q.zb[p]}">${q.zb[p]}</div>
       </div>`;
     b.appendChild(card);
   });
 
-  // pannello diagnostico (符头 / 值符 / 值使) — come "Pan info" del riferimento
   document.getElementById('paninfo').innerHTML=`
-    <div class="pi"><div class="pk">Fu Tu <span class="cjk">符头</span></div><div class="pv"><span class="cjk">${q.xunYi}</span> · at ${PINYIN[q.F]} (${q.F})</div></div>
-    <div class="pi"><div class="pk">Zhi Fu <span class="cjk">值符</span></div><div class="pv">${STAR_EN[q.hStar[q.Q]]} · at ${PINYIN[q.Q]} (${q.Q})</div></div>
-    <div class="pi"><div class="pk">Zhi Shi <span class="cjk">值使</span></div><div class="pv">${DOOR_EN[zhiShiDoor(q)]} · at ${PINYIN[zhiShiPal(q)]} (${zhiShiPal(q)})</div></div>`;
+    <div class="pi"><div class="pk">Fu Tu <span class="cjk">符头</span></div><div class="pv"><span class="cjk">${q.xunYi}</span> &middot; at ${PINYIN[q.F]} (${q.F})</div></div>
+    <div class="pi"><div class="pk">Zhi Fu <span class="cjk">值符</span></div><div class="pv">${STAR_EN[q.hStar[q.Q]]} &middot; at ${PINYIN[q.Q]} (${q.Q})</div></div>
+    <div class="pi"><div class="pk">Zhi Shi <span class="cjk">值使</span></div><div class="pv">${DOOR_EN[zhiShiDoor(q)]} &middot; at ${PINYIN[zhiShiPal(q)]} (${zhiShiPal(q)})</div></div>`;
 
-  // sync cycle viewer
-  cycView=c.gc; renderCyc();
+  cycView=c.gc; renderCyc(); renderCycleGrid();
 }
 
-/* ================= cycle viewer ================= */
+/* ================= cycle ladder panels ================= */
+function commaY(astro){ const ad=astro>=1; const n=ad?astro:(1-astro); const s=n<10000?String(n):n.toLocaleString('en-US'); return s+(ad?' AD':' BC'); }
+function renderCycleGrid(){
+  const {astro,c,yang,J}=state;
+  const superStart=ORIGIN+(c.sup-1)*SUPER, gcStart=ORIGIN+(c.gc-1)*GRAND;
+  const yuanStart=c.palStart+c.yuan*YUAN;
+  const P=[
+    {sp:'span3',k:'Great Origin',v:`${commaY(ORIGIN)}`,r:'year 1 of all cycles',tier:'origin'},
+    {sp:'span3',k:'Metonic &middot; 92,340Y',v:`#${c.sup}`,r:`${commaY(superStart)} &rarr; ${commaY(superStart+SUPER)}`,tier:'92340'},
+    {sp:'span3',k:'Grand Cycle &middot; 4860Y',v:`#${c.gc}`,r:`${commaY(gcStart)} &rarr; ${commaY(gcStart+GRAND)}`,tier:'4860'},
+    {sp:'span3',k:'Palace &middot; 540Y',v:`<span class="cjk">${PCJK[c.p]}</span> ${PNAME[c.p]}`,r:`${commaY(c.palStart)} &rarr; ${commaY(c.palStart+PALACE)}`,tier:'540'},
+    {sp:'span2',k:'Yuan &middot; 180Y',v:`${YUAN_EN[c.yuan]} <span class="cjk">${YUAN_CJK[c.yuan]}</span>`,r:`${commaY(yuanStart)} &rarr; ${commaY(yuanStart+YUAN)}`,tier:'180'},
+    {sp:'span2',k:'Jú &middot; 60Y',v:`#${J} &middot; <span class="cjk">${yang?'陽遁':'陰遁'}</span>`,r:`${commaY(c.subStart)} &rarr; ${commaY(c.subStart+JIAZI)}`,tier:'60'},
+    {sp:'span2',k:'Year &middot; 1Y',v:`${commaY(astro)}`,r:'the present year',tier:'year'},
+  ];
+  const g=document.getElementById('cyclegrid'); g.innerHTML='';
+  P.forEach(pn=>{
+    const el=document.createElement('div');
+    el.className='cyc-panel '+pn.sp+(pn.tier==='year'?' cur':'');
+    el.innerHTML=`<div class="i">i</div><div class="k">${pn.k}</div><div class="v">${pn.v}</div><div class="r">${pn.r}</div>`;
+    el.onclick=()=>{ if(pn.tier==='origin'){document.getElementById('m-anchor').classList.add('open');} else openTier(pn.tier); };
+    g.appendChild(el);
+  });
+}
+
+/* ================= per-cycle pop-ups ================= */
+function tierContent(tier){
+  const {astro,c,yang}=state;
+  const palName=PNAME[c.p];
+  const yuanStart=c.palStart + c.yuan*YUAN;
+  const inSub=astro-c.subStart+1, inYuan=astro-yuanStart+1, inPal=astro-c.palStart+1;
+  const inGcPos=(astro-(ORIGIN+(c.gc-1)*GRAND))+1;
+  if(tier==='60') return `
+    <h3>60 Years &middot; <span class="cjk">甲子</span> Jiǎzǐ</h3>
+    <div class="pin">The Sexagenary Cycle &mdash; the base cell of the calendar</div>
+    <p>Ten Heavenly Stems paired with twelve Earthly Branches give <strong>60 unique year-pillars</strong> before the pattern repeats. Every QMDJ year takes its stem&ndash;branch from this wheel; it is the smallest cycle the whole system is built on.</p>
+    <div class="pos">This year &mdash; <b>${disp(astro)} = ${roman(state.q.gz)} <span class="cjk">${state.q.gz.stem}${state.q.gz.br}</span></b>, number <b>${inSub} of 60</b> in the run ${disp(c.subStart)} &rarr; ${disp(c.subStart+60)} (which opened on a <span class="cjk">甲子</span> year).</div>`;
+  if(tier==='180') return `
+    <h3>180 Years &middot; <span class="cjk">三元</span> Sān Yuán</h3>
+    <div class="pin">The Three Eras &mdash; Upper, Middle, Lower</div>
+    <p>Three sexagenary cycles stacked: the Upper (<span class="cjk">上元</span>), Middle (<span class="cjk">中元</span>) and Lower (<span class="cjk">下元</span>) Eras. A 540-year palace is exactly three of these, and the Era selects which column is read off the palace&rsquo;s Jú grid.</p>
+    <div class="pos">This year &mdash; <b>${disp(astro)}</b> sits in the <b>${YUAN_EN[c.yuan]} Era (<span class="cjk">${YUAN_CJK[c.yuan]}</span>)</b>, ${disp(yuanStart)} &rarr; ${disp(yuanStart+YUAN)}, year <b>${inYuan} of 180</b>.</div>`;
+  if(tier==='540') return `
+    <h3>540 Years &middot; <span class="cjk">宮</span> Palace</h3>
+    <div class="pin">One Luo Shu palace &mdash; the fixed dwell-time</div>
+    <p>Nine sexagenary cycles (9&times;60), or three Eras (3&times;180). This is the <strong>fixed</strong> dwell-time of one Luo Shu palace, inherited from the hourly QMDJ structure of 60&times;9. The palace fixes the chart&rsquo;s Dun direction (Yang/Yin) and Jú family.</p>
+    <div class="pos">This year &mdash; <b>${disp(astro)}</b> dwells in the <b><span class="cjk">${PCJK[c.p]}</span> ${palName} (${c.p})</b> palace, ${disp(c.palStart)} &rarr; ${disp(c.palStart+PALACE)}, <b>${yang?'Yang Dun':'Yin Dun'}</b> &mdash; year <b>${inPal} of 540</b>.</div>
+    <p class="s" style="text-align:center"><button class="btn btn-cyc" id="toViewer1" style="margin-top:2px">&#129517; Open 9-palace viewer</button></p>`;
+  if(tier==='4860') return `
+    <h3>4,860 Years &middot; <span class="cjk">大運</span> Grand Cycle</h3>
+    <div class="pin">Nine palaces &mdash; a full descent through the Luo Shu</div>
+    <p>Nine palaces (9&times;540): one complete descent through all nine Luo Shu seats, in the order <span class="eq">1 &rarr; 9 &rarr; 8 &rarr; 7 &rarr; 6 &rarr; 5 &rarr; 4 &rarr; 3 &rarr; 2</span> (Kǎn &rarr; Lí &rarr; Gèn &rarr; Duì &rarr; Qián &rarr; Center &rarr; Xùn &rarr; Zhèn &rarr; Kūn). After it completes, the sequence resets to Kǎn.</p>
+    <div class="pos">This year &mdash; <b>Grand Cycle #${c.gc}</b>, in palace <b>${c.ord+1} of 9</b> (<span class="cjk">${PCJK[c.p]}</span> ${palName}). Year <b>${inGcPos} of 4,860</b>.</div>
+    <p class="s" style="text-align:center"><button class="btn btn-cyc" id="toViewer2" style="margin-top:2px">&#129517; Open 9-palace viewer</button></p>`;
+  if(tier==='92340') return `
+    <h3>92,340 Years &middot; Super-Cycle</h3>
+    <div class="pin">Nineteen Grand Cycles &mdash; where everything realigns</div>
+    <p>Nineteen Grand Cycles (4860&times;19). The factor <strong>19</strong> folds in the Metonic phase, so at this scale the sexagenary, Era, palace and Grand-Cycle counters all return to the same phase together &mdash; the tier at which the whole structure realigns.</p>
+    <div class="pos">This year &mdash; <b>Super-Cycle #${c.sup}</b> since the <span class="cjk">金鏡</span> origin.</div>
+    <div class="flag"><strong>Caution.</strong> This is phase coherence of an idealized 19-year counter, not a claim that a physical lunar conjunction is reconstructable across ~1.94 million years (over that span the real lunar position drifts entirely). The system&rsquo;s strength here is calendrical and structural.</div>`;
+  if(tier==='year'){
+    const gz=state.q.gz;
+    const STEM_EL={'甲':'Yang Wood','乙':'Yin Wood','丙':'Yang Fire','丁':'Yin Fire','戊':'Yang Earth','己':'Yin Earth','庚':'Yang Metal','辛':'Yin Metal','壬':'Yang Water','癸':'Yin Water'};
+    const ANIMAL={'子':'Rat','丑':'Ox','寅':'Tiger','卯':'Rabbit','辰':'Dragon','巳':'Snake','午':'Horse','未':'Goat','申':'Monkey','酉':'Rooster','戌':'Dog','亥':'Pig'};
+    return `
+    <h3>1 Year &middot; <span class="cjk">太歲</span> The Charted Year</h3>
+    <div class="pin">The single solar year the chart is cast for</div>
+    <p>The year being charted. Its stem&ndash;branch &mdash; drawn from the 60-year wheel &mdash; is what seeds the whole QMDJ board above: the year-stem places the Commander, and the year sets the annual flying star.</p>
+    <div class="pos">This year &mdash; <b>${commaY(astro)} = ${roman(gz)} <span class="cjk">${gz.stem}${gz.br}</span></b>, the <b>${STEM_EL[gz.stem]} ${ANIMAL[gz.br]}</b>. Annual star <b>${state.q.ctr}</b> at center.</div>`;
+  }
+  return '';
+}
+function openVoid(){
+  const vi=state.vi, q=state.q;
+  const palList=Object.keys(vi.palaces).map(p=>`<span class="cjk">${PCJK[p]}</span> ${PNAME[p]}`).join(', ');
+  // spiegazione della regola d'angolo basata sulla carta corrente
+  let cornerNote='';
+  for(const ps in PAL_BR){ const pal=+ps, brs=PAL_BR[pal];
+    if(brs.length!==2) continue;
+    const vh=brs.filter(b=>vi.vb.includes(b));
+    if(vh.length===1){
+      const st=q.earth[pal], stYang=(STEMS.indexOf(st)%2===0), brYang=(vh[0]%2===0);
+      const verdict = (stYang===brYang);
+      cornerNote=`<p class="s">Corner palace <span class="cjk">${PCJK[pal]}</span> ${PNAME[pal]} holds two branches (<span class="cjk">${BR[brs[0]]}${BR[brs[1]]}</span>); only <span class="cjk">${BR[vh[0]]}</span> is void. Its emptiness is decided by polarity: the Earth-plate stem <span class="cjk">${st}</span> is ${stYang?'Yang':'Yin'} and <span class="cjk">${BR[vh[0]]}</span> is ${brYang?'Yang':'Yin'} &mdash; ${verdict?'they match, so it <b>is</b> void':'they differ, so it is <b>not</b> void'}.</p>`;
+    }
+  }
+  document.getElementById('voidBody').innerHTML=`
+    <h3>Void Palace &middot; <span class="cjk">空亡</span> Emptiness</h3>
+    <div class="pin">Empty for the full ten-year decade</div>
+    <p>In a decade, ten stems pair with twelve branches, so <strong>two branches are left without a stem</strong> and count as void (<span class="cjk">空亡</span>) for the whole ten years. For the current decade &mdash; headed by <span class="cjk">${vi.head}</span> &mdash; the void branches are <b><span class="cjk">${vi.vbChars[0]}</span> and <span class="cjk">${vi.vbChars[1]}</span></b>.</p>
+    <p>A branch sitting alone in a cardinal palace makes that whole palace void. ${cornerNote?'For a corner palace with two branches, polarity decides.':''}</p>
+    ${cornerNote}
+    <div class="pos">Void this decade: <b>${palList||'&mdash;'}</b>.</div>`;
+  document.getElementById('m-void').classList.add('open');
+}
+function openTier(tier){
+  document.getElementById('tierBody').innerHTML = tierContent(tier);
+  document.getElementById('m-tier').classList.add('open');
+  const v1=document.getElementById('toViewer1'), v2=document.getElementById('toViewer2');
+  if(v1) v1.onclick=()=>{document.getElementById('m-tier').classList.remove('open'); renderCyc(); document.getElementById('m-cyc').classList.add('open');};
+  if(v2) v2.onclick=()=>{document.getElementById('m-tier').classList.remove('open'); renderCyc(); document.getElementById('m-cyc').classList.add('open');};
+}
+
+/* ================= 9-palace viewer ================= */
 let cycView;
 function renderCyc(){
   const gcStart=ORIGIN+(cycView-1)*GRAND, gcEnd=gcStart+GRAND;
   const sup=Math.floor((gcStart-ORIGIN)/SUPER)+1;
-  document.getElementById('cycT').textContent='Gran Ciclo #'+cycView;
-  document.getElementById('cycM').textContent=disp(gcStart)+' → '+disp(gcEnd)+' · super-ciclo #'+sup;
+  document.getElementById('cycT').textContent='Grand Cycle #'+cycView;
+  document.getElementById('cycM').textContent=disp(gcStart)+' \u2192 '+disp(gcEnd)+' \u00b7 super-cycle #'+sup;
   const mk=state.c;
   const box=document.getElementById('luoshu'); box.innerHTML='';
   LUOSHU.forEach(p=>{
@@ -402,10 +583,10 @@ function renderCyc(){
     let cells='';
     for(let r=0;r<3;r++)for(let c2=0;c2<3;c2++){const k=r*3+(2-c2); const mkc=(isCur&&k===mk.sub)?' mk':''; cells+=`<span class="${mkc}">${g[r][c2]}</span>`;}
     const card=document.createElement('div'); card.className='lp'+(isCur?' cur':'');
-    card.innerHTML=`<div class="od">${ord+1}°</div>
+    card.innerHTML=`<div class="od">${ord+1} of 9</div>
       <div class="nm"><span class="cjk">${PCJK[p]}</span>${PNAME[p]} <span class="n">(${p})</span></div>
       <div class="dn ${dcls}">${PDUN[p]>0?'Yang Dun':PDUN[p]<0?'Yin Dun':'Yin↔Yang'}</div>
-      <div class="sp">${disp(pStart)} → ${disp(pStart+PALACE)}</div>
+      <div class="sp">${disp(pStart)} \u2192 ${disp(pStart+PALACE)}</div>
       <div class="jh"><span>下</span><span>中</span><span>上</span></div>
       <div class="jg">${cells}</div>`;
     box.appendChild(card);
@@ -420,11 +601,11 @@ document.getElementById('cyc').onclick=()=>{renderCyc();document.getElementById(
 document.getElementById('cPrev').onclick=()=>{cycView--;renderCyc();};
 document.getElementById('cNext').onclick=()=>{cycView++;renderCyc();};
 document.getElementById('cNow').onclick =()=>{cycView=state.c.gc;renderCyc();};
+document.getElementById('board').addEventListener('click',e=>{ if(e.target.classList.contains('voidmark')) openVoid(); });
 document.querySelectorAll('[data-modal]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.modal).classList.add('open'));
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m||e.target.hasAttribute('data-close'))m.classList.remove('open');}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));});
 
-/* init */
 drawYear(NOW);
 </script>
 </body>
