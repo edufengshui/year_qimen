@@ -61,8 +61,27 @@
   .pill .vc{font-family:'Noto Serif TC',serif; color:var(--ink-soft); font-size:13px}
 
   /* ===== SQUARE QMDJ BOARD ===== */
+  .chart-row{display:flex; gap:16px; justify-content:center; align-items:stretch; flex-wrap:wrap; max-width:660px; margin:0 auto 8px}
   .board-frame{background:var(--green); border-radius:10px; padding:30px; position:relative;
-    box-shadow:0 14px 40px -22px rgba(0,0,0,.6); margin:0 auto 8px; max-width:600px; aspect-ratio:1}
+    box-shadow:0 14px 40px -22px rgba(0,0,0,.6); margin:0; flex:1 1 460px; max-width:480px; aspect-ratio:1}
+  /* ---- months column ---- */
+  .months{flex:0 0 164px; display:flex; flex-direction:column; background:var(--paper); border:1px solid var(--line); border-radius:9px; padding:10px 10px 8px}
+  .m-head{font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--green-d); text-align:center; padding-bottom:6px; border-bottom:1px solid var(--line-soft); margin-bottom:4px}
+  .m-head span{font-size:12px; color:var(--gold-d); margin-left:4px}
+  .m-list{flex:1; display:flex; flex-direction:column; gap:2px}
+  .mchip{flex:1; display:flex; align-items:center; gap:7px; padding:2px 7px; border-radius:5px; cursor:pointer;
+    border:1px solid transparent; transition:.15s; min-height:30px}
+  .mchip:hover{background:#f6efde}
+  .mchip.active{background:#f3e7e3; border-color:var(--cinnabar)}
+  .mchip .mi{font-size:10px; color:var(--ink-soft); width:14px; text-align:right; font-variant-numeric:tabular-nums}
+  .mchip .mgz{font-family:'Noto Serif TC',serif; font-size:18px; font-weight:600; letter-spacing:1px}
+  .mchip .br2{font-size:9px; color:var(--ink-soft); font-style:italic; margin-left:auto}
+  .m-note{font-size:9.5px; color:var(--ink-soft); text-align:center; line-height:1.3; padding-top:6px; border-top:1px solid var(--line-soft); margin-top:4px; font-style:italic}
+  /* circle on the ruled Heaven-plate stem */
+  .hstem.ruled{position:relative}
+  .hstem.ruled::after{content:""; position:absolute; top:50%; left:50%; width:30px; height:30px;
+    transform:translate(-50%,-50%); border:2px solid var(--cinnabar); border-radius:50%;
+    box-shadow:0 0 8px rgba(181,67,47,.35); animation:rise .3s both}
   .dir{position:absolute; color:#cfe6d8; font-size:12px; letter-spacing:.12em; font-weight:600}
   .dir.cjk{font-size:15px; opacity:.92; font-weight:400}
   .board{width:100%; height:100%; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:7px}
@@ -105,7 +124,7 @@
   .wood{color:var(--wood)} .fire{color:var(--fire)} .earth{color:var(--earth)} .metal{color:var(--metal)} .water{color:var(--water)}
   .center-pal .deity, .center-pal .door{opacity:.5}
 
-  .paninfo{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px auto 4px; max-width:600px}
+  .paninfo{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px auto 4px; max-width:660px}
   .paninfo .pi{background:var(--paper); border:1px solid var(--line); border-radius:7px; padding:10px 14px; text-align:center}
   .paninfo .pk{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-d)}
   .paninfo .pk .cjk{letter-spacing:0}
@@ -114,10 +133,10 @@
 
   .legend{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; font-size:12px; color:var(--ink-soft); margin:14px 0 6px}
   .legend b{font-weight:600; color:var(--ink)}
-  .vnote{font-size:12px; color:var(--gold-d); text-align:center; margin-top:6px; font-style:italic; max-width:600px; margin-left:auto; margin-right:auto}
+  .vnote{font-size:12px; color:var(--gold-d); text-align:center; margin-top:6px; font-style:italic; max-width:660px; margin-left:auto; margin-right:auto}
 
   /* ===== cycle ladder panels ===== */
-  .cycles{max-width:600px; margin:22px auto 0}
+  .cycles{max-width:660px; margin:22px auto 0}
   .cyc-head{font-family:'Cormorant Garamond',serif; font-size:19px; color:var(--green-d); text-align:center; margin-bottom:12px}
   .cyc-head span{font-family:'EB Garamond',serif; font-size:13px; color:var(--ink-soft); font-style:italic}
   .cycle-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:9px}
@@ -183,6 +202,11 @@
     .hstem,.estem{font-size:18px} .door .en{font-size:16px} .deity .en{font-size:10.5px} .star{font-size:10px}
     .dir{display:none} .zb{width:20px;height:20px;font-size:11px}
     .cycle-grid{grid-template-columns:repeat(2,1fr)} .span2,.span3{grid-column:span 2}
+    .chart-row{flex-direction:column; align-items:center}
+    .months{flex-basis:auto; width:min(100%,480px)}
+    .m-list{display:grid; grid-template-columns:repeat(6,1fr); gap:4px}
+    .mchip{flex-direction:column; gap:0; min-height:auto; padding:5px 2px; text-align:center}
+    .mchip .mi{width:auto} .mchip .mgz{font-size:16px} .mchip .br2{display:none}
   }
 </style>
 </head>
@@ -205,7 +229,8 @@
 
   <div class="band" id="band"></div>
 
-  <div class="board-frame">
+  <div class="chart-row">
+   <div class="board-frame">
     <span class="dir" style="top:8px; left:30px">SE</span>
     <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-110px)">&#24051;</span>
     <span class="dir cjk" style="top:7px; left:50%; transform:translateX(-6px)">&#21320;</span>
@@ -222,6 +247,12 @@
     <span class="dir cjk" style="bottom:7px; left:50%; transform:translateX(-6px)">&#23376;</span>
     <span class="dir" style="bottom:8px; right:30px">NW</span>
     <div class="board" id="board"></div>
+   </div>
+   <div class="months">
+     <div class="m-head">Months <span class="cjk">五虎遁</span></div>
+     <div class="m-list" id="mlist"></div>
+     <div class="m-note" id="mnote">Tap a month to circle its stem in the Heaven plate &mdash; that palace becomes the month&rsquo;s player.</div>
+   </div>
   </div>
 
   <div class="paninfo" id="paninfo"></div>
@@ -443,7 +474,7 @@ function drawYear(astro){
     card.innerHTML=`
       ${vBadge}
       <div class="r1">
-        <div class="hstem cjk ${STEM5[hs]||''}${hHL}">${hs||''}${hLodge}</div>
+        <div class="hstem cjk ${STEM5[hs]||''}${hHL}" data-hpal="${p}">${hs||''}${hLodge}</div>
         <div class="${deityCls}">${isC?'':`<div class="en">${DEITY_EN[q.deity[p]]}</div><div class="cn cjk">${q.deity[p]}</div>`}</div>
         <div class="star">${STAR_EN[q.hStar[p]]}<span class="cn cjk">${q.hStar[p]}</span></div>
       </div>
@@ -461,7 +492,48 @@ function drawYear(astro){
     <div class="pi"><div class="pk">Zhi Fu <span class="cjk">值符</span></div><div class="pv">${STAR_EN[q.hStar[q.Q]]} &middot; at ${PINYIN[q.Q]} (${q.Q})</div></div>
     <div class="pi"><div class="pk">Zhi Shi <span class="cjk">值使</span></div><div class="pv">${DOOR_EN[zhiShiDoor(q)]} &middot; at ${PINYIN[zhiShiPal(q)]} (${zhiShiPal(q)})</div></div>`;
 
-  cycView=c.gc; renderCyc(); renderCycleGrid();
+  cycView=c.gc; renderCyc(); renderCycleGrid(); renderMonths();
+}
+
+/* ================= month pillars (五虎遁) + ruler highlight ================= */
+const ANIMAL={'子':'Rat','丑':'Ox','寅':'Tiger','卯':'Rabbit','辰':'Dragon','巳':'Snake','午':'Horse','未':'Goat','申':'Monkey','酉':'Rooster','戌':'Dog','亥':'Pig'};
+const JIA_ESCORT={0:'戊',10:'己',8:'庚',6:'辛',4:'壬',2:'癸'}; // 甲's 遁干 by branch index
+function monthPillars(yearStemIdx){
+  const m1=((yearStemIdx%5)*2+2)%10;   // 五虎遁: stem of 寅 month
+  const out=[];
+  for(let i=0;i<12;i++){ const si=(m1+i)%10, bi=(2+i)%12; out.push({i, stem:STEMS[si], br:BR[bi], si, bi}); }
+  return out;
+}
+function renderMonths(){
+  const {q}=state;
+  const ms=monthPillars(STEMS.indexOf(q.gz.stem));
+  const list=document.getElementById('mlist'); list.innerHTML='';
+  ms.forEach(m=>{
+    const el=document.createElement('div'); el.className='mchip'; el.dataset.mi=m.i;
+    el.innerHTML=`<span class="mi">${m.i+1}</span><span class="mgz"><span class="${STEM5[m.stem]}">${m.stem}</span>${m.br}</span><span class="br2">${ANIMAL[m.br]}</span>`;
+    el.onclick=()=>selectMonth(m, el);
+    list.appendChild(el);
+  });
+  document.getElementById('mnote').innerHTML='Tap a month to circle its stem in the Heaven plate &mdash; that palace becomes the month&rsquo;s player.';
+}
+function selectMonth(m, el){
+  const {q}=state;
+  // stelo da cercare nel Tien Pan: 甲 non compare → uso il suo 遁干
+  const target = (m.stem==='甲') ? JIA_ESCORT[m.bi] : m.stem;
+  const pal = ring.concat(5).find(p=>q.hStem[p]===target);
+  // toggle
+  const already = el.classList.contains('active');
+  document.querySelectorAll('.mchip.active').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.hstem.ruled').forEach(h=>h.classList.remove('ruled'));
+  if(already){ document.getElementById('mnote').innerHTML='Tap a month to circle its stem in the Heaven plate &mdash; that palace becomes the month&rsquo;s player.'; return; }
+  el.classList.add('active');
+  if(pal){
+    const h=document.querySelector(`.hstem[data-hpal="${pal}"]`); if(h) h.classList.add('ruled');
+    const via = (m.stem==='甲') ? ` (甲 hidden under ${target})` : '';
+    document.getElementById('mnote').innerHTML=`Month ${m.i+1} &mdash; <b class="cjk">${m.stem}${m.br}</b> ${ANIMAL[m.br]}: stem <b class="cjk">${target}</b>${via} rules <b><span class="cjk">${PCJK[pal]}</span> ${PNAME[pal]}</b> (${pal}).`;
+  } else {
+    document.getElementById('mnote').innerHTML=`Month ${m.i+1} &mdash; <b class="cjk">${m.stem}${m.br}</b>: stem not on the Heaven plate.`;
+  }
 }
 
 /* ================= cycle ladder panels ================= */
@@ -527,7 +599,6 @@ function tierContent(tier){
   if(tier==='year'){
     const gz=state.q.gz;
     const STEM_EL={'甲':'Yang Wood','乙':'Yin Wood','丙':'Yang Fire','丁':'Yin Fire','戊':'Yang Earth','己':'Yin Earth','庚':'Yang Metal','辛':'Yin Metal','壬':'Yang Water','癸':'Yin Water'};
-    const ANIMAL={'子':'Rat','丑':'Ox','寅':'Tiger','卯':'Rabbit','辰':'Dragon','巳':'Snake','午':'Horse','未':'Goat','申':'Monkey','酉':'Rooster','戌':'Dog','亥':'Pig'};
     return `
     <h3>1 Year &middot; <span class="cjk">太歲</span> The Charted Year</h3>
     <div class="pin">The single solar year the chart is cast for</div>
